@@ -1,0 +1,505 @@
+<?php 
+namespace App\Repositories;
+
+use App\Repositories\Helper;
+use App\CarFeatureEntertainment;
+use App\CarFeatureSafety;
+use App\CarFeatureOther;
+use App\CarFeatureSeat;
+use App\CarFeature;
+use App\CarImage;
+use Response;
+use App\Car;
+use Image;
+
+
+class Cars extends Helper {
+
+
+    protected $cars;
+
+	public function __construct(Car $cars){
+		$this->cars = $cars;
+	}
+	/**
+	 * [create description]
+	 * @param  array  $array [description]
+	 * @return [type]        [description]
+	 */	
+	public function createCar($array) {
+	     $response = array();
+	  	 $car = Car::create($array);
+	  	 if ($car) {
+	  	 	$response = array('message' => 'Successfully', 'car_id' => $car->batch_id);
+	  	 }
+		  return $response;
+	}
+
+	/**
+	 * ************************************************************************
+	 * This function create new car listings
+	 * ************************************************************************
+	 * @param  array $attributes post request array from mobile 
+	 * @return [type]             [description]
+	 * *************************************************************************
+	 */
+	public function create( $attributes, $user_id ) {
+
+
+		$main = json_decode($attributes['main']);
+		$main->added_by = $user_id;
+
+		$randomNum = substr(str_shuffle("0123456789"), 0, 5);
+		$main->batch_id = $randomNum;
+		$main->price = $this->getAmount($main->price);
+
+		$response = array();
+
+		// Convet object to array
+		$details = (array) $main;
+		$created = Car::create( $details );
+		$car_id = $created->id;
+
+
+		$car_features = $attributes['car_features'];
+		$car_seats = $attributes['car_seats'];
+		$car_others = $attributes['car_others'];
+		$car_safety = $attributes['car_safety'];
+		$car_entertainment  = $attributes['car_entertainment'];
+
+		// $profile = $attributes['profile'];
+
+		if ( isset($car_features) ) {
+			$features = explode(',', $car_features);
+	  	 	$this->saveCarFeatures($features, $car_id);
+	  	}
+
+	  	if ( isset($car_seats )){
+	  		$seats = explode(',', $car_seats);
+	  		$this->saveCarFeatures($seats, $car_id, 'seats');
+	  	}
+
+	  	if ( isset( $car_others )) {
+	  		
+	  		$other = explode(',', $car_others);
+			$this->saveCarFeatures($others, $car_id, 'others');
+        }
+
+        if ( isset( $car_entertainment) ) {
+
+        	$entertainment = explode(',', $car_entertainment);
+			$this->saveCarFeatures($entertainment, $car_id, 'entertainment');
+        }
+
+        if ( isset( $car_safety)) {
+
+        	$safety = explode(',', $car_safety);
+			$this->saveCarFeatures($safety, $car_id, 'safety');
+        }
+
+       if ( isset( $attributes['image1'])) {
+
+       	  $save_image = $this->saveImages($attributes['image1'], $car_id, $user_id );
+        }
+
+       if ( isset( $attributes['image2'])) {
+       	  $save_image = $this->saveImages($attributes['image2'], $car_id, $user_id );
+        }
+
+        if ( isset( $attributes['image3'])) {
+       	  $save_image = $this->saveImages($attributes['image3'], $car_id, $user_id );
+        }
+
+        if ( isset( $attributes['image4'])) {
+       	  $save_image = $this->saveImages($attributes['image4'], $car_id, $user_id );
+        }
+
+        if ( isset( $attributes['image5'])) {
+       	  $save_image = $this->saveImages($attributes['image5'], $car_id, $user_id );
+        }
+
+        return $response = array('response' => $created);
+	}
+
+	/**
+	 * [show description]
+	 * @param  [type] $id [description]
+	 * @return [type]     [description]
+	 */
+	public function show( $batch_id ) {
+
+		$response = array();
+		$attributes = Car::where('batch_id', '=', $batch_id)->first();
+		$response = array(
+			'id' => $attributes->id,
+			'batch_id' => $attributes->batch_id,
+			'make_id' => $attributes->make_id,
+			'model_id' => $attributes->model_id,
+			'year_id' => $attributes->year_id,
+			'vehicle_id' => $attributes->vehicle_id,
+			'make' => $this->getMakeById($attributes->make_id)->name,
+			'model' => $this->getModelById($attributes->model_id),
+			'year' => $this->getModelYearById ($attributes->year_id),
+			'color' => $attributes->color,
+			'location' => $attributes->parish,
+			'steering' => $attributes->steering,
+			'price' => $attributes->price,
+		);
+
+		if ( isset($response)) {
+			return $response;
+		}
+		return $response;
+	}
+
+
+	/**
+	 * THis function get user ars
+	 * @param  [type] $user_id [description]
+	 * @return [type]          [description]
+	 */
+	public function getUserCars($user, $filter) {
+			$cars = Car::where('added_by', '=', $user)->get();
+			return $cars;
+	}
+
+
+	/**
+	 * [getCarDetailsById description]
+	 * @return [type] [description]
+	 */
+	public function getCarDetailsById($id) {
+
+		$carDetails = Car::find($id);
+		$response = array(
+			'id' => $carDetails->id,
+			'subscribe' => $this->checkIfSubscribe($carDetails->id),
+			'batch_id' => $carDetails->batch_id,
+			'make_id' => $carDetails->make_id,
+			'model_id' => $carDetails->model_id,
+			'milage' => $carDetails->milage,
+			'year_id' => $carDetails->year_id,
+			'vehicle_id' => $carDetails->vehicle_id,
+			'make' => $this->getMakeById($carDetails->make_id)->name,
+			'model' => $this->getModelById($carDetails->model_id),
+			'year' => $this->getModelYearById ($carDetails->year_id),
+			'color' => $carDetails->color,
+			'location' => $carDetails->parish.', '. $carDetails->district,
+			'district' => $carDetails->district,
+			'parish' => $carDetails->parish,
+			'steering' => $carDetails->steering,
+			'price' => $carDetails->price,
+			'profile' => $this->getUserProfileByUserId($carDetails->added_by)
+		);
+
+		if (isset($response)) {
+			return $response;
+		}
+	}
+
+	/**
+	 * [UpdateCarById description]
+	 * @param [type] $carId  [description]
+	 * @param [type] $params [description]
+	 */
+	public function UpdateCarById($params, $carId) {
+		$response = array();
+		if (isset ($carId) ) {
+			$car = Car::where('id', '=', $carId);
+			$update = $car->update($params);
+			if ($update) {
+				$response = array('message' => 'Car details has been succesfully updatedsss');
+				return $response;
+			}
+		}
+		return $response;
+	}
+
+	/**
+	 * [all description]
+	 * @param  [type] $filter [description]
+	 * @return [type]         [description]
+	 */
+	public function all( $filter ) {
+
+		$response = array();
+		$car = $this->car::orderBy('id', ', desc');
+
+		if ($filter['make'] != '') {
+			$car = $car->where('make_id', '=', $filter['make']);
+		}
+
+		if ($filter['model'] != '') {
+			$car = $car->where('model_id', '=', $filter['model']);
+		}
+
+		if ($filter['price'] != '') {
+			//TODO
+			//Add where betweent fucntionalilty
+		}
+
+		if ( $filter['year'] != '') {
+			//TODO
+			//Add where betweeb functionality
+		}
+
+		$cars = $car->get();
+
+		foreach( $cars as $car) {
+
+			$response[] = array(
+				'id' => $car->id,
+				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this-> getModelYearById($car->year_id),
+				// 'vehicle' => $this->getVehicleById($vehicle->id),
+				'location' => $car->parsih,
+				'price' => $car->price,
+				'color' => $car->color,
+				'description' => $car->description
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * This function get user listing by id
+	 * @param  [type] $filter  [description]
+	 * @param  [type] $user_id [description]
+	 * @return [type]          [description]
+	 */
+	public function getUserCarsById($filter, $user_id) {
+
+		$response = array();
+		$listing = $this->cars->where('added_by', '=', $user_id)->get();
+		foreach( $listing as $car) {
+
+			$response[] = array(
+				'id' => $car->id,
+				'subscribe' => $this->checkIfSubscribe($car->id),
+				'batch_id' => $car->batch_id,
+				'make_id' => $car->make_id,
+				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				// 'vehicle' => $this->getVehicleById($car->vehicle_id),
+				'location' => $car->parsih,
+				'price' => $car->price,
+				'interior_color' => $car->interior_color,
+				'exterior_color' => $car->exterior_color,
+				'description' => $car->description,
+				'location' => $car->parish.', '. $car->district,
+				'district' => $car->district,
+				'parish' => $car->parish,
+				'milage' => $car->milage,
+				'steering' => $car->steering,
+				'image' => $this->getCarImage($car->id),
+				'images' => $car->images,
+				'profile' => $this->getUserProfileByUserId($car->added_by)
+
+			);
+		}
+		return $response;
+	}
+
+	/**
+	 * *******************************************************************
+	 * [getCarDetailsBy description]
+	 * *******************************************************************
+	 * @param  [type] $batch_id [description]
+	 * @return [type]           [description]
+	 * *******************************************************************
+	 */
+	public function getCarDetailsByBatchId( $batch_id ) {
+
+		$response = array();
+
+		$car = $this->cars->where('batch_id', '=', $batch_id)->first();
+			$response = array(
+				'id' => $car->id,
+				'subscribe' => $this->checkIfSubscribe($car->id),
+				'batch_id' => $car->batch_id,
+				'make_id' => $car->make_id,
+				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
+				'profile' => $this->getUserProfileByUserId($car->added_by),
+				'location' => $car->parsih,
+				'price' => $car->price,
+				'interior_color' => $car->interior_color,
+				'exterior_color' => $car->exterior_color,
+				'desc' => $car->description,
+				'location' => $car->parish.', '. $car->district,
+				'district' => $car->district,
+				'fuel_type' => $car->fuel_type,
+				'parish' => $car->parish,
+				'milage' => $car->milage,
+				'steering' => $car->steering,
+				'image' => $this->getCarImage($car->id),
+				'images' => $car->images,
+				'features' => $car->feature,
+				'safety' => $car->safety,
+				'entertainment' => $car->entertainment,
+				'other' => $car->other,
+				'seat' => $car->seat
+			);
+		return $response;
+	}
+
+	/**
+	 * ******************************************************************
+	 * This filter car by make name
+	 * ******************************************************************
+	 * @param  [type] $filter [description]
+	 * @return [type]         [description]
+	 * ******************************************************************
+	 */
+	public function filterCarsByMake($attributes, $offset = 15) {
+
+		$listings = $this->cars->with(['year', 'make']);
+		
+		$make ='';	
+		if ( $attributes['minYear']) {
+			$listings = $listings->where('year','=>', $attributes['minYear']);
+		}
+
+		if ( $attributes['maxYear']) {
+		     $listings = $listings->where('year.', '<=', $attributes['maxYear']);
+		}
+
+		if ( $attributes['parish'] ) {
+			$listings = $listings->where('parish', '=',$attributes['parish'] );
+		}
+
+		if ( $attributes['make'] ) {
+			$make_count = count($attributes['make']);
+			for ($i = 0; $i < $make_count; $i++) {
+				$listings = $listings->orWhere('make_id', '=', $attributes['make'][$i]);
+			}
+		}
+		
+		if ($attributes['maxPrice']) {
+			$listings = $listings->orWhere('price', '<=', $attributes['maxPrice']);
+		}
+
+		if ( $attributes['minPrice']) {
+			$listings = $listings->orWhere('price', '>=', $attributes['minPrice']);
+		}
+
+
+		// return $listings;
+
+		$response = array();
+		$listings = $listings->get();
+
+		foreach( $listings as $car) {
+			$response[] = array(
+				'id' => $car->id,
+				'subscribe' => $this->checkIfSubscribe($car->id),
+				'batch_id' => $car->batch_id,
+				'make_id' => $car->make_id,
+				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
+				'profile' => $this->getUserProfileByUserId($car->added_by),
+				'location' => $car->parsih,
+				'price' => $car->price,
+				'interior_color' => $car->interior_color,
+				'exterior_color' => $car->exterior_color,
+				'desc' => $car->description,
+				'location' => $car->parish.', '. $car->district,
+				'district' => $car->district,
+				'fuel_type' => $car->fuel_type,
+				'parish' => $car->parish,
+				'milage' => $car->milage,
+				'steering' => $car->steering,
+				'image' => $this->getCarImage($car->id),
+				'images' => $car->images,
+				'features' => $car->feature,
+				'safety' => $car->safety,
+				'entertainment' => $car->entertainment,
+				'other' => $car->other,
+				'seat' => $car->seat
+			);
+		}
+		return $response;
+	}
+
+	/**
+	 * *********************************************************************
+	 * this function save car features
+	 * *********************************************************************
+	 * @param  array  $arry [description]
+	 * @param  [type] $id   [description]
+	 * @param  string $type [description]
+	 * @return [type]       [description]
+	 * *********************************************************************
+	 */
+	public function saveCarFeatures(array $array, $id, $type = 'default') {
+
+	  	 $array_count  = count($array);
+	  	 for($i = 0; $i < $array_count; $i++) {
+
+			switch ($type) {
+			   case "seats":
+				    $model = new CarFeatureSeat;
+				    break;
+
+			   case "safety":
+			   	    $model = new CarFeatureSafety;
+			   	    break;
+
+			   case "others";
+			   		$model = new CarFeatureOther;
+			   		break;
+
+			   case "entertainment":
+			   	    $model = new CarFeatureEntertainment;
+			   	    break;
+
+			   default:
+			   	   $model = new CarFeature;
+			   	   break;
+            }
+
+			$model->car_id = $id;
+			$model->name = $array[$i];
+			$model->save();
+		 }
+	}
+
+	/**
+	 * ********************************************
+	 * this function save car images
+	 * ********************************************
+	 * @param  [type] $image  [description]
+	 * @param  [type] $car_id [description]
+	 * @return [type]         [description]
+	 * ********************************************
+	 */
+	public function saveImages($images, $car_id, $user_id) {
+
+        $originalImage = $images;
+      
+        $thumbnailImage = Image::make($originalImage);
+        $thumbnailPath = public_path().'/storage/thumbnail/';
+        $originalPath  = public_path().'/storage/images/';
+        $thumbnailImage->save($originalPath.time().$originalImage->getClientOriginalName());
+        $thumbnailImage->resize(480,320);
+        $thumbnailImage->save($thumbnailPath.time().$originalImage->getClientOriginalName()); 
+
+        $imagemodel=  new CarImage();
+        $imagemodel->image =time().$originalImage->getClientOriginalName();
+        $imagemodel->car_id = $car_id;
+        $imagemodel->user_id = $user_id;
+
+        $imagemodel->save();
+    }
+
+}
+
+
+ ?>
