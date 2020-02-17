@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\VehicleMake;
+use App\Services\CarServices;
+use App\Services\MakeService;
 use Response;
 
 class MakesController extends Controller
@@ -19,7 +21,7 @@ class MakesController extends Controller
     public $model;
 
     /**
-     * Create a new ModelsController instance.
+     * Create a new ModelsController instance.4
      *
      * @return void
      */
@@ -33,13 +35,11 @@ class MakesController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function makes()
+    public function makes(Request $request)
     {
-    	$makes = $this->model->orderBy('name')->get(['id', 'name']);
-
-    	return response()->json([
-    		'makes' => $makes
-    	]);
+        $carservice = new MakeService;
+        $makes = $carservice->get_makes_type($request->make_type);
+        return Response::json($makes);
     }
 
     /**

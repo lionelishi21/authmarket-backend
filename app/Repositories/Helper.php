@@ -7,6 +7,7 @@ use App\VehicleModel;
 use App\VehicleMake;
 use App\CarImage;
 use App\Vehicle;
+use Carbon\Carbon;
 use App\Profile;
 use App\User;
 use App\Car;
@@ -50,10 +51,10 @@ class Helper {
   */
   public function getModelById($model_id) {
 
-  	// $model = VehicleModel::findOrFail($model_id);
-  	// if (isset ($model)) {
-  	// 	return $model->name;
-  	// }
+  	$model = VehicleModel::findOrFail($model_id);
+  	if (isset ($model)) {
+  	   return $model->name;
+  	}
   }
 
   /**
@@ -98,12 +99,13 @@ class Helper {
   }
 
   /**
+  *******************************************
    * This funcition conver money to intger
    * @param  [type] $money [description]
    * @return [type]        [description]
+   ******************************************
    */
-  public function getAmount($money)
-  {
+  public function getAmount($money){
 	    $cleanString = preg_replace('/([^0-9\.,])/i', '', $money);
 	    $onlyNumbersString = preg_replace('/([^0-9])/i', '', $money);
 
@@ -129,31 +131,54 @@ class Helper {
 		return false;
 	}
 
-  /**
-   * [getUserProfileByUserId description]
-   * @param  [type] $user_id [description]
-   * @return [type]          [description]
-   */
-  public function getUserProfileByUserId( $user_id ) {
+  public function userCars($user_id, $options) {
+    $car = new Car;
+    $subscription = new Subscription;
+    $now = Carbon::now();
 
-       $user = User::find($user_id);
-       $response = array(
-          'name' => $user->name,
-          'username' => $user->username,
-          'email' => $user->email,
-          'dealer' => $user->isDealer,
-          'company' => $user->company,
-          'address' => $user->address,
-          'district' => $user->district,
-          'parish' => $user->city,
-          'about' => $user->about,
-          'name' => $user->name,
-          'email' => $user->email,
-          'phone' => $user->phone
-        );
+    $cars = $car->where('added_by', '=', $user_id);
 
+    if ( $options == 'count') {
+      return $car->count();
+    }
+
+    if ($options == 'active') {
+      return $subscription->where('user_id', '=', $user_id)->whereDate('end_time', '>=', $now)->count();
+    } 
+
+    if ( $options == 'inactive') {
+        return $subscription->where('user_id', '=', $user_id)->whereDate('end_time', '<=', $now)->count();
+    }
+
+    if ($options == 'cars') {
+        
+        $response = array();     
+        $active_cars = $cars->where('added_by', '=', $user_id)->get();
+        foreach ( $active_cars as $usercar ) {
+            
+            
+            $sub = $subscription->where('car_id', '=', $usercar->id)->whereDate('end_time', '>=', $now)->count();
+            if ( $sub < 1 ) {
+               continue;
+            }  
+
+            $response[] =  array (
+                'id' => $usercar->id,
+                'subscribe' => $this->checkIfSubscribe($usercar->id),
+                'make' => $this->getMakeById($usercar->make_id),
+                'model' => $this->getModelById($usercar->model_id),
+                'vehicle' => $this->getVehicleById($usercar->make_id, $usercar->model_id, $usercar->year_id),
+                'price' => $usercar->price,
+                'days' => $now->diffInDays($usercar->end_time),
+                'subscription' => $subscription->with(['plan'])->where('car_id', '=', $usercar->id )->first(),
+                'image' => $this->getCarImage($usercar->id)
+            );     
+        }
         return $response;
+    }
+    
   }
+
 }
 ?>
 

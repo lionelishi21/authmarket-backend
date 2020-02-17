@@ -10,24 +10,38 @@ use Illuminate\Http\Request;
 | Here is where you can register API routes for your application. These
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
-|
+| --------------------------------------------------------------------------
 */
 
-#===========================================================
-#														   =
-#===========================================================
+/** Application and **/
 Route::middleware('auth:api')->group(function () {
 
-	Route::get('/user', function(Request $request){ 
+	/*Route::get('/user', function(Request $request){ 
 	     return $request->user();
 	});
+	*/
 
-	Route::get('/logout', 'API\AuthController@logout');
+	Route::group(['prefix' => 'user'],function(){
+		Route::get('/', function(Request $request){
+		    return $request->user();
+	  	});
+	  	Route::post('/save-filter', 'UserController@SaveUserFilter');
+	  	Route::get('/get-user-filter', 'UserController@UserFilter');
+	});
+
 
 	Route::group(['prefix' => 'plans'], function(){
 		Route::get('/select-plan/{id}', 'API\PlanController@selectPlan');
+		Route::get('/get-userplans', 'PlansController@userPlans');
 		Route::post('/method', 'API\PlanController@paymethod');
+		Route::post('/update/{id}', 'API\PlanController@update');
 	});
+
+
+	Route::group(['prefix' => 'invoices'], function() {
+		Route::get('/{id}', 'InvoiceController@index');
+	});
+
 
 	Route::group(['prefix' => 'cars'],function(){
 		Route::get('/car-details/{id}', 'CarsController@edit');
@@ -44,14 +58,13 @@ Route::middleware('auth:api')->group(function () {
 		Route::get('/check', 'API\SubscriptionController@checkSubscription');
 	});
 
-
+	Route::get('/logout', 'API\AuthController@logout');
 	Route::get('/profile', 'ApiProfileController@profile');
 	Route::post('/update-profile', 'ApiProfileController@update');
 
 });
 
 Route::get('/plan-details/{id}', 'API\PlanController@details');
-
 Route::get('/user-plan', 'API\PlanController@userPlans');
 Route::get('/plans', 'API\PlanController@index');
 

@@ -6,6 +6,7 @@ use App\Repositories\Helper;
 use Carbon\Carbon;
 use App\Profile;
 use App\Car;
+use App\Activity;
 use App\User;
 
 class ProfileRepository extends Helper{
@@ -36,6 +37,7 @@ class ProfileRepository extends Helper{
 		$active_car = Subscription::where('user_id', '=', $user_idr)->where('end_date', '>', $now)->count();
 		return $active_car;
 	}
+
 
 	/**
 	 * **********************************************************
@@ -85,6 +87,61 @@ class ProfileRepository extends Helper{
 
 		return $update_user;
 	}
+
+
+	  /**
+	   * [getUserProfileByUserId description]
+	   * @param  [type] $user_id [description]
+	   * @return [type]          [description]
+	   */
+	  public function getUserProfileByUserId( $user_id ) {
+
+	       $user = User::find($user_id);
+	       $response = array(
+	          'name' => $user->name,
+	          'username' => $user->username,
+	          'email' => $user->email,
+	          'dealer' => $user->isDealer,
+	          'company' => $user->company,
+	          'address' => $user->address,
+	          'district' => $user->district,
+	          'parish' => $user->city,
+	          'about' => $user->about,
+	          'name' => $user->name,
+	          'email' => $user->email,
+	          'phone' => $user->phone,
+	          'user_cars_count' => $this->userCars($user_id, 'count'),
+	          'user_active_count' => $this->userCars($user_id, 'active'),
+	          'cars' => $this->userCars($user_id, 'cars'),
+	          'user_inactive_count' => $this->userCars($user_id, 'inactive'),
+	          'activity' => $this->getUserActivities($user_id)
+	        );
+	        return $response;
+	  }
+
+	  /**
+	   * ************************************************************
+	   * THis function get all user activities
+	   * @param  {[type]} $user_id [description]
+	   * @return {[type]}          [description]
+	   **************************************************************
+	   */
+	  public function getUserActivities( $user_id ) {
+	  	
+	  	$response = array();
+
+	  	$activity = new Activity;
+	  	$activities = $activity->where('causer_id', '=', $user_id)->orderBy('created_at', 'desc')->get();
+
+	  	/** TODO Limit Activity feed to 5 */
+	  	foreach( $activities as $activity) {
+	  		$response[] = array(
+	  			'description' => $activity->description,
+	  			'date' => $activity->created_at
+	  		);
+	  	}
+	  	return $response;
+	  }
 }
 
 

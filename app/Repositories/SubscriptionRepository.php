@@ -45,5 +45,23 @@ class SubscriptionRepository {
 			return $response;
 		}
 	}
+
+	public function getActiveSubByUserId( $user_id ) {
+
+		$response = array();
+		$subs = Subscriptions::where('user_id', '=', $user_id)->get();
+
+		foreach( $subs as $sub ) {
+
+			$response[] = array(
+				'car' => Car::find($sub->car_id),
+				'id' => $sub->id,
+				'plan' => Plan::find($sub->plan_id),
+				'start_time' => $sub->start_time,
+				'end_time' => $sub->end_time
+			);
+		}
+		return $response;
+	}
 }
  ?>

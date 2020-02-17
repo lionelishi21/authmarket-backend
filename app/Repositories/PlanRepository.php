@@ -2,18 +2,17 @@
 namespace App\Repositories;
 
 use App\Plan;
+use App\Repositories\Helper;
 use App\User;
 
-class PlanRepository {
+class PlanRepository extends Helper {
 
 	protected $model;
-
 	public function __construct(Plan $plan){
 		$this->model = $plan;
 	}
 
-
-	/**
+	/*********************************************************
 	 * this function get all plans
 	 * @return [type] [description]
 	 */
@@ -30,8 +29,8 @@ class PlanRepository {
 	 * *****************************************************
 	 */
 	public function getUserPlanByUserId($user) {
-		$user = User::where('plan_id', '=', $user)->first();
-		return $user;
+		$userplans = $this->userCars($user, 'cars');
+		return $userplans;
 	}
 
 	/**

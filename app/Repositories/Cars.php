@@ -6,7 +6,11 @@ use App\CarFeatureEntertainment;
 use App\CarFeatureSafety;
 use App\CarFeatureOther;
 use App\CarFeatureSeat;
+use App\Activity;
 use App\CarFeature;
+use App\Subscription;
+use App\User;
+use Carbon\Carbon;
 use App\CarImage;
 use Response;
 use App\Car;
@@ -16,7 +20,7 @@ use Image;
 class Cars extends Helper {
 
 
-    protected $cars;
+	protected $cars;
 
 	public function __construct(Car $cars){
 		$this->cars = $cars;
@@ -27,11 +31,11 @@ class Cars extends Helper {
 	 * @return [type]        [description]
 	 */	
 	public function createCar($array) {
-	     $response = array();
-	  	 $car = Car::create($array);
-	  	 if ($car) {
-	  	 	$response = array('message' => 'Successfully', 'car_id' => $car->batch_id);
-	  	 }
+		 $response = array();
+		 $car = Car::create($array);
+		 if ($car) {
+			$response = array('message' => 'Successfully', 'car_id' => $car->batch_id);
+		 }
 		  return $response;
 	}
 
@@ -71,54 +75,54 @@ class Cars extends Helper {
 
 		if ( isset($car_features) ) {
 			$features = explode(',', $car_features);
-	  	 	$this->saveCarFeatures($features, $car_id);
-	  	}
+			$this->saveCarFeatures($features, $car_id);
+		}
 
-	  	if ( isset($car_seats )){
-	  		$seats = explode(',', $car_seats);
-	  		$this->saveCarFeatures($seats, $car_id, 'seats');
-	  	}
+		if ( isset($car_seats )){
+			$seats = explode(',', $car_seats);
+			$this->saveCarFeatures($seats, $car_id, 'seats');
+		}
 
-	  	if ( isset( $car_others )) {
-	  		
-	  		$other = explode(',', $car_others);
+		if ( isset( $car_others )) {
+			
+			$other = explode(',', $car_others);
 			$this->saveCarFeatures($others, $car_id, 'others');
-        }
+		}
 
-        if ( isset( $car_entertainment) ) {
+		if ( isset( $car_entertainment) ) {
 
-        	$entertainment = explode(',', $car_entertainment);
+			$entertainment = explode(',', $car_entertainment);
 			$this->saveCarFeatures($entertainment, $car_id, 'entertainment');
-        }
+		}
 
-        if ( isset( $car_safety)) {
+		if ( isset( $car_safety)) {
 
-        	$safety = explode(',', $car_safety);
+			$safety = explode(',', $car_safety);
 			$this->saveCarFeatures($safety, $car_id, 'safety');
-        }
+		}
 
-       if ( isset( $attributes['image1'])) {
+	   if ( isset( $attributes['image1'])) {
 
-       	  $save_image = $this->saveImages($attributes['image1'], $car_id, $user_id );
-        }
+		  $save_image = $this->saveImages($attributes['image1'], $car_id, $user_id );
+		}
 
-       if ( isset( $attributes['image2'])) {
-       	  $save_image = $this->saveImages($attributes['image2'], $car_id, $user_id );
-        }
+	   if ( isset( $attributes['image2'])) {
+		  $save_image = $this->saveImages($attributes['image2'], $car_id, $user_id );
+		}
 
-        if ( isset( $attributes['image3'])) {
-       	  $save_image = $this->saveImages($attributes['image3'], $car_id, $user_id );
-        }
+		if ( isset( $attributes['image3'])) {
+		  $save_image = $this->saveImages($attributes['image3'], $car_id, $user_id );
+		}
 
-        if ( isset( $attributes['image4'])) {
-       	  $save_image = $this->saveImages($attributes['image4'], $car_id, $user_id );
-        }
+		if ( isset( $attributes['image4'])) {
+		  $save_image = $this->saveImages($attributes['image4'], $car_id, $user_id );
+		}
 
-        if ( isset( $attributes['image5'])) {
-       	  $save_image = $this->saveImages($attributes['image5'], $car_id, $user_id );
-        }
+		if ( isset( $attributes['image5'])) {
+		  $save_image = $this->saveImages($attributes['image5'], $car_id, $user_id );
+		}
 
-        return $response = array('response' => $created);
+		return $response = array('response' => $created);
 	}
 
 	/**
@@ -361,13 +365,6 @@ class Cars extends Helper {
 		$listings = $this->cars->with(['year', 'make']);
 		
 		$make ='';	
-		if ( $attributes['minYear']) {
-			$listings = $listings->where('year','=>', $attributes['minYear']);
-		}
-
-		if ( $attributes['maxYear']) {
-		     $listings = $listings->where('year.', '<=', $attributes['maxYear']);
-		}
 
 		if ( $attributes['parish'] ) {
 			$listings = $listings->where('parish', '=',$attributes['parish'] );
@@ -381,11 +378,15 @@ class Cars extends Helper {
 		}
 		
 		if ($attributes['maxPrice']) {
-			$listings = $listings->orWhere('price', '<=', $attributes['maxPrice']);
+			$listings = $listings->where('price', '<=', $attributes['maxPrice']);
 		}
 
 		if ( $attributes['minPrice']) {
-			$listings = $listings->orWhere('price', '>=', $attributes['minPrice']);
+			$listings = $listings->where('price', '>=', $attributes['minPrice']);
+		}
+
+		if ( $attributes['bodyType']) {
+			$listings = $listings->where('body_type', '=', $attributes['bodyType']);
 		}
 
 
@@ -395,6 +396,27 @@ class Cars extends Helper {
 		$listings = $listings->get();
 
 		foreach( $listings as $car) {
+
+			if ( isset( $attributes['minYear']) ) {
+				$carYear = $this->getYearById($car->year_id);
+				$filterMinYear = $attributes['minYear'];
+
+				if ($carYear < $filterMinYear){
+				  continue;
+				}
+			}
+
+
+			if ( isset ( $attributes['maxYear'])) {
+				$carYear = $this->getYearById($car->year_id);
+				$filterMinYear = $attributes['minYear'];
+
+				if ($carYear < $filterMinYear){
+				  continue;
+				}
+			}
+
+			
 			$response[] = array(
 				'id' => $car->id,
 				'subscribe' => $this->checkIfSubscribe($car->id),
@@ -440,30 +462,30 @@ class Cars extends Helper {
 	 */
 	public function saveCarFeatures(array $array, $id, $type = 'default') {
 
-	  	 $array_count  = count($array);
-	  	 for($i = 0; $i < $array_count; $i++) {
+		 $array_count  = count($array);
+		 for($i = 0; $i < $array_count; $i++) {
 
 			switch ($type) {
 			   case "seats":
-				    $model = new CarFeatureSeat;
-				    break;
+					$model = new CarFeatureSeat;
+					break;
 
 			   case "safety":
-			   	    $model = new CarFeatureSafety;
-			   	    break;
+					$model = new CarFeatureSafety;
+					break;
 
 			   case "others";
-			   		$model = new CarFeatureOther;
-			   		break;
+					$model = new CarFeatureOther;
+					break;
 
 			   case "entertainment":
-			   	    $model = new CarFeatureEntertainment;
-			   	    break;
+					$model = new CarFeatureEntertainment;
+					break;
 
 			   default:
-			   	   $model = new CarFeature;
-			   	   break;
-            }
+				   $model = new CarFeature;
+				   break;
+			}
 
 			$model->car_id = $id;
 			$model->name = $array[$i];
@@ -482,22 +504,160 @@ class Cars extends Helper {
 	 */
 	public function saveImages($images, $car_id, $user_id) {
 
-        $originalImage = $images;
-      
-        $thumbnailImage = Image::make($originalImage);
-        $thumbnailPath = public_path().'/storage/thumbnail/';
-        $originalPath  = public_path().'/storage/images/';
-        $thumbnailImage->save($originalPath.time().$originalImage->getClientOriginalName());
-        $thumbnailImage->resize(480,320);
-        $thumbnailImage->save($thumbnailPath.time().$originalImage->getClientOriginalName()); 
+		$originalImage = $images;
+	  
+		$thumbnailImage = Image::make($originalImage);
+		$thumbnailPath = public_path().'/storage/thumbnail/';
+		$originalPath  = public_path().'/storage/images/';
+		$thumbnailImage->save($originalPath.time().$originalImage->getClientOriginalName());
+		$thumbnailImage->resize(480,320);
+		$thumbnailImage->save($thumbnailPath.time().$originalImage->getClientOriginalName()); 
 
-        $imagemodel=  new CarImage();
-        $imagemodel->image =time().$originalImage->getClientOriginalName();
-        $imagemodel->car_id = $car_id;
-        $imagemodel->user_id = $user_id;
+		$imagemodel=  new CarImage();
+		$imagemodel->image =time().$originalImage->getClientOriginalName();
+		$imagemodel->car_id = $car_id;
+		$imagemodel->user_id = $user_id;
 
-        $imagemodel->save();
+		$imagemodel->save();
+	}
+
+
+	public function getUserDashBoardWidgets($user) {
+
+		$response = array();
+
+		$today = Carbon::now();
+
+		$car_count = Car::wehere('added_by', '=', $user_id)->count();
+		$actve_car = Subscription::where('added_by', '=', $user)->count();
+
+		$cars = Cars::where('added_by', '=', $user)->get(3);
+
+		foreach($cars as $car) {
+
+		  $subscription = Subscription::where('car_id', '=', $car->id)->first();
+
+		  if ( $subscription ) {
+			$response = array(
+			'id' => $car->id,
+				'subscribe' => $this->checkIfSubscribe($car->id),
+				'batch_id' => $car->batch_id,
+				'make_id' => $car->make_id,
+				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id)
+			);
+		  }
+		  
+		}
+
+		$responses = array(
+			'cars' => $response,
+			 count => $car_count,
+			 active => $car_active,
+		);
+		
+		return $responses;
+	}
+
+
+	/**
+	   * [getUserProfileByUserId description]
+	   * @param  [type] $user_id [description]
+	   * @return [type]          [description]
+	   */
+	  public function getUserProfileByUserId( $user_id ) {
+
+	       $user = User::find($user_id);
+	       $response = array(
+	          'name' => $user->name,
+	          'username' => $user->username,
+	          'email' => $user->email,
+	          'dealer' => $user->isDealer,
+	          'company' => $user->company,
+	          'address' => $user->address,
+	          'district' => $user->district,
+	          'parish' => $user->city,
+	          'about' => $user->about,
+	          'name' => $user->name,
+	          'email' => $user->email,
+	          'phone' => $user->phone,
+	          'user_cars_count' => $this->userCars($user_id, 'count'),
+	          'user_active_count' => $this->userCars($user_id, 'active'),
+	          'cars' => $this->userCars($user_id, 'cars'),
+	          'user_inactive_count' => $this->userCars($user_id, 'inactive'),
+	          'activity' => $this->getUserActivities($user_id)
+	        );
+
+	        return $response;
+	  }
+
+
+
+	  public function getUserActivities( $user_id ) {
+	  	$activity = new Activity;
+	  	return $activity::find($user_id);
+	  }
+
+	  /**
+	 * this function check id car is subscripe to a plan
+	 * @param  [type] $car_id [description]
+	 * @return [type]         [description]
+	 */
+	public function checkIfSubscribe($car_id) {
+
+		$subscriptions = Subscription::where('car_id', '=', $car_id)->first();
+		if ( isset($subscriptions)) {
+			return true;
+		}
+		return false;
+	}
+
+  public function userCars($user_id, $options) {
+    $car = new Car;
+    $subscription = new Subscription;
+    $now = Carbon::now()->toDateTimeString();
+
+    $cars = $car->where('added_by', '=', $user_id);
+
+    if ( $options == 'count') {
+      return $car->count();
     }
+
+    if ($options == 'active') {
+      return $subscription->where('user_id', '=', $user_id)->where('end_time', '<', $now)->count();
+    } 
+
+    if ( $options == 'inactive') {
+        return $subscription->where('user_id', '=', $user_id)->where('end_time', '>', $now)->count();
+    }
+
+    if ($options == 'cars') {
+        
+        $response = array();     
+        $active_cars = $cars->get();
+        foreach ( $active_cars as $usercar ) {
+            
+            $sub = $subscription->where('user_id', '=', $user_id)->count();
+            if ( $sub < 1 ) {
+               continue;
+            }  
+
+            $response[] =  array (
+                'id' => $usercar->id,
+                'subscribe' => $this->checkIfSubscribe($usercar->id),
+                'make' => $this->getMakeById($usercar->make_id),
+                'model' => $this->getModelById($usercar->model_id),
+                'vehicle' => $this->getVehicleById($usercar->make_id, $usercar->model_id, $usercar->year_id),
+                'price' => $usercar->price,
+                'image' => $this->getCarImage($usercar->id)
+            );     
+        }
+        return $response;
+    }
+    
+  }
 
 }
 
