@@ -38,7 +38,13 @@ class MakesController extends Controller
     public function makes(Request $request)
     {
         $carservice = new MakeService;
-        $makes = $carservice->get_makes_type($request->make_type);
+        $user = $request->user();
+        $user_id = null;
+
+        if (isset($user)) {
+            $user_id = $user->id;
+        }
+        $makes = $carservice->get_makes_type($request->make_type, $user_id);
         return Response::json($makes);
     }
 

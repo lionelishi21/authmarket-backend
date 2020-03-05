@@ -8,6 +8,7 @@ use App\Profile;
 use App\Car;
 use App\Activity;
 use App\User;
+use App\UserFilter;
 
 class ProfileRepository extends Helper{
 
@@ -142,6 +143,95 @@ class ProfileRepository extends Helper{
 	  	}
 	  	return $response;
 	  }
+
+	  /**
+	   * *****************************************************
+	   * this function save user filter
+	   * @param  [type] $attributes [description]
+	   * @param  [type] $user       [description]
+	   * @return [type]             [description]
+	   * ****************************************************
+	   */
+	  public function saveUserFilters($attributes, $user) {
+
+	  	$makes = $attributes['makes'];
+	  	$parish = $attributes['parishes'];
+	  	$year = $attributes['years'];
+	  	$price = $attributes['prices'];
+	  	$bodystyle = $attributes['bodystyles'];
+
+
+		$userfilter = UserFilter::where('user_id', '=', $user)->first();
+		
+		$filter = new UserFilter;
+		if ( isset($userfilter)) {
+			$filter = UserFilter::find($user);
+		}
+
+ 		$filter->makes = $makes;
+ 		$filter->parish = $parish;
+ 		$filter->min_year = $minyear;
+ 		$filter->max_year = $maxyear;
+ 		$filter->min_price = $min_price;
+ 		$filter->body_style = $bodystyles;
+ 		$filter->drive_type = $drive_type;
+ 		$filter->max_price = $max_price;
+ 		$filter->save();
+
+ 		if ($filter->save()){
+ 			$response = array('message' => 'User filter save succesfully');
+ 			return $response;
+ 		}
+
+ 		$response = array('message' => 'Something went wrong');
+ 		return $response;
+	  }
+
+
+
+	/**
+	 * THis check user filter
+	 * @param  [type] $user [description]
+	 * @return [type]       [description]
+	 */
+	public function checkIsUserFilter($user, $make_id) {
+
+		$userfilter = UserFilter::where('user_id', '=', $user)->first();
+
+		if (isset($userfilter)) {
+			$filters = $userfilter->makes;
+				foreach($filters as $filter) {
+					if ($filter->id == $make_id) {
+						return true;
+					}
+					return false;
+				}
+		}
+		return false;
+	}
+
+	/**
+	 * this function save user's filter
+	 * @param  [type] $user       [description]
+	 * @param  [type] $attributes [description]
+	 * @return [type]             [description]
+	 */
+	public function saveUserFilter($user, $attributes){
+
+		$response = array();
+		$userfilter = UserFilter::where('user_id','=', $user)->first();
+		if ( !isset($userfilter)) {
+			$saveFilter = new UserFilter;
+			$saveFilter->user_id = $user;
+			$saveFilter->makes = $attributes['makes'];
+			$saveFilter->save();
+
+			if ($saveFilter->save()){
+				$response = array('message' => 'Filter saved');
+				return $response;
+			}
+		}
+	}
 }
 
 

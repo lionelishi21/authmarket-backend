@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserFilterTransmission extends Migration
+class CreatePaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateUserFilterTransmission extends Migration
      */
     public function up()
     {
-        Schema::create('user_filter_transmissons', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->integer('car_id');
+            $table->integer('invoice_id');
+            $table->integer("plan_id");
+            $table->integer('amount');
             $table->integer('user_id');
-            $table->integer('transmissions_id');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ class CreateUserFilterTransmission extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_filter_transmissons');
+        Schema::dropIfExists('payments');
     }
 }

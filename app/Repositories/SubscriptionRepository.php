@@ -46,6 +46,13 @@ class SubscriptionRepository {
 		}
 	}
 
+	/**
+	 * ************************************************
+	 * [getActiveSubByUserId description]
+	 * ***********************************************
+	 * @param  [type] $user_id [description]
+	 * @return [type]          [description]
+	 */
 	public function getActiveSubByUserId( $user_id ) {
 
 		$response = array();

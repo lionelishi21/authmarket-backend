@@ -27,6 +27,8 @@ Route::middleware('auth:api')->group(function () {
 	  	});
 	  	Route::post('/save-filter', 'UserController@SaveUserFilter');
 	  	Route::get('/get-user-filter', 'UserController@UserFilter');
+
+	  	Route::post('/save-userfilter', 'UserController@SaveUserFilter');
 	});
 
 
