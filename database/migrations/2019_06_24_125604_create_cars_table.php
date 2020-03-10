@@ -35,7 +35,7 @@ class CreateCarsTable extends Migration
             $table->integer('added_by');
             $table->integer('isSold')->default(0);
             $table->integer('isNegotiable')->default(0);
-            $table->string('body_type')->nullable();
+            $table->integer('body_type');
             $table->timestamps();
         });
     }

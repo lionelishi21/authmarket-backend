@@ -58,5 +58,37 @@ class UserService {
 
     	return $save;
     }
+
+
+    /**
+     * [Filter description]
+     * @param Request $request [description]
+     */
+    public function Filter(Request $request) {
+
+    	$user_id = $request->user()->id;  
+    	$filter = $this->model->getUserFilterByUserId($user_id);
+    	return $filter;
+    }
+
+    /**
+     * THis function get all parishes and attach if filtered
+     * @param  [type] $user_id [description]
+     * @return [type]          [description]
+     */
+    public function  get_parishes($user_id) {
+    	$parishes = $this->model->getAllParishes($user_id);  
+    	return $parishes;
+    }
+
+    /**
+     * This function get all body styles
+     * @param  [type] $user_id [description]
+     * @return [type]          [description]
+     */
+    public function get_bodystyles($user_id) {
+    	return $this->model->getAllBodyStyle( $user_id );
+    }
+
 }
 ?>

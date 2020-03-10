@@ -27,9 +27,13 @@ Route::middleware('auth:api')->group(function () {
 	  	});
 	  	Route::post('/save-filter', 'UserController@SaveUserFilter');
 	  	Route::get('/get-user-filter', 'UserController@UserFilter');
-
+	  	Route::get('/filters', 'UserController@GetUserFilter');
 	  	Route::post('/save-userfilter', 'UserController@SaveUserFilter');
 	});
+
+
+	Route::get('parishes', 'UserController@Parish');
+	Route::get('bodystyles', 'UserController@Bodystyles');
 
 
 	Route::group(['prefix' => 'plans'], function(){
@@ -65,6 +69,9 @@ Route::middleware('auth:api')->group(function () {
 	Route::post('/update-profile', 'ApiProfileController@update');
 
 });
+
+Route::get('parishes', 'UserController@Parish');
+Route::get('bodystyles', 'UserController@Bodystyles');
 
 Route::get('/plan-details/{id}', 'API\PlanController@details');
 Route::get('/user-plan', 'API\PlanController@userPlans');

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBodyStyleTable extends Migration
+class CreateFilterBodystyleTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class CreateBodyStyleTable extends Migration
      */
     public function up()
     {
-        Schema::create('car_body_style', function (Blueprint $table) {
+        Schema::create('filter_bodystyle', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
+            $table->integer('user_id'); 
+            $table->integer('bodystyle_id');
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ class CreateBodyStyleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('car_body_style');
+        Schema::dropIfExists('filter_bodystyle');
     }
 }

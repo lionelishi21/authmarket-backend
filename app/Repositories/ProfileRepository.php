@@ -8,6 +8,10 @@ use App\Profile;
 use App\Car;
 use App\Activity;
 use App\User;
+use App\FilterMake;
+use App\FilterParish;
+use App\Bodystyle;
+use App\Parish;
 use App\UserFilter;
 
 class ProfileRepository extends Helper{
@@ -187,51 +191,155 @@ class ProfileRepository extends Helper{
  		return $response;
 	  }
 
+   
+	/**
+	 * *****************************************************
+	 * This function save user makes filter
+	 * *****************************************************
+	 * @param  [type] $user       [description]pp/m
+	 * @param  [type] $attributes [description]
+	 * @return [type]             [description]
+	 */
+	public function saveUserFilter($user, $attributes){
+		
+		$response = array();
+		
+		$user = 1;
+		$make = $attributes['makes'];
 
+		if ( $make ) {
+			$check = $this->removeMakeFilter($user, $make);
+			if ( $check == false) {
+				$filter = new FilterMake; 
+				$filter->make_id = $make;
+				$filter->user_id = $user;  
+				$filter->save();
+				if ($filter->save()) {
+					$response = array('message' => 'User filter has been succesfully saved');
+					return $response; 
+				}
+			} 
+		}
+	}
 
 	/**
-	 * THis check user filter
-	 * @param  [type] $user [description]
-	 * @return [type]       [description]
+	 * ******************************************************
+	 * This function remove make filter if already set
+	 * ******************************************************
+	 * @param  [type] $user_id [description]
+	 * @param  [type] $make_id [description]
+	 * @return [type]          [description]
+	 * ******************************************************
 	 */
-	public function checkIsUserFilter($user, $make_id) {
+	public function removeMakeFilter($user_id, $make_id) {
 
-		$userfilter = UserFilter::where('user_id', '=', $user)->first();
-
-		if (isset($userfilter)) {
-			$filters = $userfilter->makes;
-				foreach($filters as $filter) {
-					if ($filter->id == $make_id) {
-						return true;
-					}
-					return false;
-				}
+		$filtermake = FilterMake::where('user_id', '=', $user_id)->where('make_id', '=', $make_id)->first();
+		if ($filtermake) {
+			$deleted = $filtermake->delete();
+			return $deleted;
 		}
 		return false;
 	}
 
 	/**
-	 * this function save user's filter
-	 * @param  [type] $user       [description]
-	 * @param  [type] $attributes [description]
-	 * @return [type]             [description]
+	 * *********************************************************************
+	 * This function get user filters
+	 * *********************************************************************
+	 * @param  [type] $user_id [description]
+	 * @return [type]          [description]
+	 * *********************************************************************
 	 */
-	public function saveUserFilter($user, $attributes){
-
+	public function getUserFilterByUserId($user_id) {
 		$response = array();
-		$userfilter = UserFilter::where('user_id','=', $user)->first();
-		if ( !isset($userfilter)) {
-			$saveFilter = new UserFilter;
-			$saveFilter->user_id = $user;
-			$saveFilter->makes = $attributes['makes'];
-			$saveFilter->save();
+		$userFilter = UserFilrer::where('user_id', '=', $user_id)->first();
 
-			if ($saveFilter->save()){
-				$response = array('message' => 'Filter saved');
-				return $response;
-			}
-		}
+		$response = array(  
+			'parish' => $userFilter->parish, 
+			'makes' => '',
+			'min_year' => $userFilter->min_year,
+			'max_year' => $userFilter->max_year,
+			'drive_type' => $userFilter->drive_type,
+			'min_price' => $userFilter->min_price,  
+			'max_price' => $userFilter->max_price,
+			'seller_type' => $userFilter->seller_type
+		);
+		return $response;
 	}
+
+	public function getAllParishes($user_id) {
+
+		$parishes = Parish::get();
+		$response = array();
+
+		foreach($parishes as $parish) {
+
+			$response[] = array(
+			     'id' => $parish->id,
+    			'name' => $parish->name, 
+    			'filter' => $this->checkIfParishIsFilter($user_id, $parish->id)
+			);
+		}
+		return $response;
+	}
+
+	/**
+	 * ****************************************************************
+	 * This function get all body styles
+	 * ****************************************************************
+	 * @param  [type] $user_id [description]
+	 * @return [type]          [description]
+	 * ***************************************************************
+	 */
+	public function getAllBodyStyle($user_id) {
+
+    	$bodystyles = Bodystyle::get();
+    	$response = array(); 
+
+    	foreach( $bodystyles as $bodystyle) {
+    		$response[] = array(
+    			'id' => $bodystyle->id, 
+    			'name' => $bodystyle->name, 
+    			'filter' => $this->checkIdBodyStyleFilter($user_id, $bodystyle->id)
+    		);
+    	}
+    	return $response;
+	}
+
+	 /**
+	  * ******************************************************
+     * [checkIfParishIsFilter description]
+     * *******************************************************
+     * @param  [type] $user   [description]
+     * @param  [type] $parish [description]
+     * @return [type]         [description]
+     * *******************************************************
+     */
+    public function checkIfParishIsFilter($user, $parish) {
+    	if ( isset($user)) { 
+	    	$filterParish = FilterParish::where('user_id', '=', $user)->where('parish_id', '=', $parish)->get(); 
+	    	if ($filterParish) {
+	    		return true;
+	    	}	
+	    	return false;
+         }
+    }
+
+    /**
+     * [checkIdBodyStyleFilter description]
+     * @param  [type] $user      [description]
+     * @param  [type] $bodystyle [description]
+     * @return [type]            [description]
+     */
+    public function checkIdBodyStyleFilter($user, $bodystyle) {
+    	if ( isset($user)) { 
+	    	$filterBodyStyle = BodystyleFilter::where('user_id', '=', $user)->where('bodystyle_id', '=', $bodystyle)->first();
+	    	if ($filterBodyStyle) {
+	    		return true;
+	    	}
+	    	return false;
+        }
+    }
+
 }
 
 

@@ -4,6 +4,7 @@ namespace App\Repositories;
 use App\Repositories\Helrper;
 use App\VehicleMake;
 use App\UserFilter;
+use App\FilterMake;
 use App\Car;
 
 class MakeRepository extends Helper {
@@ -99,16 +100,9 @@ class MakeRepository extends Helper {
 	 */
 	public function checkIsUserFilter($user, $make_id) {
 
-		$userfilter = UserFilter::where('user_id', '=', 1)->first();
-
-		if (isset($userfilter)) {
-			$filters = collect(json_decode($userfilter->makes, true));
-				foreach($filters as $filter) {
-					if ($filter == $make_id) {
-						return true;
-					}
-					return false;
-				}
+		$userfilter = FilterMake::where('user_id', '=', 1)->where('make_id','=',$make_id)->first();
+		if ( isset( $userfilter )) {
+			return true;
 		}
 		return false;
 	}
