@@ -16,10 +16,10 @@ class Car extends Model
         'fuel_type', 'negotiable'
     ];
 
-    protected static $logAttributes = [   'model.name', 'make.name', 'year.year', 'user.name', 'batch_id',
-        'price', 'color', 'steering', 'parish', 'district', 'description', 
-        'milage', 'interior_color', 'exterior_color', 'doors', 'drive_type',
-        'fuel_type', 'negotiable'];
+    // protected static $logAttributes = [   'model.name', 'make.name', 'year.year', 'user.name', 'batch_id',
+    //     'price', 'color', 'steering', 'parish', 'district', 'description', 
+    //     'milage', 'interior_color', 'exterior_color', 'doors', 'drive_type',
+    //     'fuel_type', 'negotiable'];
 
    protected static $logOnlyDirty = true; 
 
@@ -44,23 +44,23 @@ class Car extends Model
     }
 
     public function feature() {
-        return $this->hasMany('App\CarFeature', 'id', 'car_id');
+        return $this->hasMany('App\CarFeature', 'car_id', 'id');
     }
 
    public function safety() {
-        return $this->hasMany('App\CarFeatureSafety', 'id', 'car_id');
+        return $this->hasMany('App\CarFeatureSafety', 'car_id', 'id');
    }
 
    public function entertainment() {
-        return $this->hasMany('App\CarFeatureEntertainment', 'id', 'car_id');
+        return $this->hasMany('App\CarFeatureEntertainment', 'car_id', 'id');
    }
 
    public function other() {
-        return $this->hasMany('App\CarFeatureOther', 'id', 'car_id');
+        return $this->hasMany('App\CarFeatureOther', 'car_id', 'id');
    }
 
    public function seat() {
-        return $this->hasMany('App\CarFeatureSeat', 'id', 'car_id');
+        return $this->hasMany('App\CarFeatureSeat', 'car_id', 'id');
    }
 
    public function vehicle() {

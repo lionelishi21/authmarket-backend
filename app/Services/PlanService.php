@@ -24,9 +24,14 @@ class PlanService {
    * @return [type] [description]
    * **********************************************
    */
-  public function index() {
-  	$plans = $this->planrepository->getAllPlans();
-  	return $plans;
+  public function index(Request $request) {
+
+    $user = $request->user();
+    if ( $user ) {
+      $user_id = $user->id;
+      $plans = $this->planrepository->getAllPlans($user_id);
+      return $plans;
+    }
   }
 
   /**

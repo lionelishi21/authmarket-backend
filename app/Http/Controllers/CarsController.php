@@ -47,10 +47,13 @@ class CarsController extends Controller
     }
 
 	/**
+     ****************************************************************** 
 	 * [show description]
+     ****************************************************************** 
 	 * @param  Request $request [description]
 	 * @param  [type]  $user_id [description]
 	 * @return [type]           [description]
+     ******************************************************************** 
 	 */
     public function show(Request $request, $user_id = null) {
 
@@ -68,11 +71,12 @@ class CarsController extends Controller
 
 
     /**
-     * *******************************************************
+     * *************************************************************
      * [details description]
-     * ((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     * *************************************************************
      * @param  [type] $batch_id [description]
      * @return [type]           [description]
+     * *************************************************************
      */
     public function details ( $batch_id ) {
         $details = $this->carservice->show_details( $batch_id);
@@ -165,11 +169,57 @@ class CarsController extends Controller
     }
 
     /**
+     * [incrementPageview description]
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
+    public function countPageviews($car_id) {
+
+        $response = $this->carservice->increment_page($car_id);
+        return $response;
+    }
+    /**
      * [filterCars description]
      * @param  Request $request [description]
      * @return [type]           [description]
      */
     public function filterCars(Request $request) {
         return $this->carservice->filter($request);
+    }
+
+    /**
+     * this function get most view cars
+     * @return [type] [description]
+     */
+    public function mostViewCars() {
+        $cars = $this->carservice->hotcars();
+        return Response::json($cars);
+    }
+
+    /**
+     * ****************************************************
+     * This function get active cars
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     *****************************************************x
+     */
+    public function getUserActiveCars(Request $request) {
+
+        $user_id = $request->user()->id;
+        $cars = $this->carservice->get_active_cars($user_id);
+        return Response::json($cars);
+    }
+
+    /**
+     * This function get all inactive cars
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
+    public function getUserInactiveCars(Request $request) {
+
+        $user_id = $request->user()->id;
+        $cars = $this->carservice->get_inactive_cars($user_id);
+        return Response::json($cars);
+
     }
 }

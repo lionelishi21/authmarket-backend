@@ -51,7 +51,7 @@ class Helper {
   */
   public function getModelById($model_id) {
 
-  	$model = VehicleModel::findOrFail($model_id);
+  	$model = VehicleModel::find($model_id);
   	if (isset ($model)) {
   	   return $model->name;
   	}
@@ -124,12 +124,16 @@ class Helper {
 	 */
 	public function checkIfSubscribe($car_id) {
 
+    $now = Carbon::today();
 		$subscriptions = Subscription::where('car_id', '=', $car_id)->first();
 		if ( isset($subscriptions)) {
-			return true;
+        if (Carbon::parse($subscriptions->end_time)->format('Y-m-d') > $now->format('Y-m-d')) {
+            return true ;
+        }
 		}
 		return false;
 	}
+
 
   public function userCars($user_id, $options) {
     $car = new Car;
@@ -151,17 +155,17 @@ class Helper {
     }
 
     if ($options == 'cars') {
-        
+
         $response = array();     
         $active_cars = $cars->where('added_by', '=', $user_id)->get();
         foreach ( $active_cars as $usercar ) {
-            
-            
+          
             $sub = $subscription->where('car_id', '=', $usercar->id)->whereDate('end_time', '>=', $now)->count();
             if ( $sub < 1 ) {
                continue;
             }  
-
+            
+            $sub_details = $subscription->with(['plan'])->where('car_id', '=', $usercar->id )->first();
             $response[] =  array (
                 'id' => $usercar->id,
                 'subscribe' => $this->checkIfSubscribe($usercar->id),
@@ -169,9 +173,10 @@ class Helper {
                 'model' => $this->getModelById($usercar->model_id),
                 'vehicle' => $this->getVehicleById($usercar->make_id, $usercar->model_id, $usercar->year_id),
                 'price' => $usercar->price,
-                'days' => $now->diffInDays($usercar->end_time),
-                'subscription' => $subscription->with(['plan'])->where('car_id', '=', $usercar->id )->first(),
-                'image' => $this->getCarImage($usercar->id)
+                'days' => $now->diffInDays($sub_details->end_time),
+                'subscription' => $sub_details,
+                'image' => $this->getCarImage($usercar->id), 
+                'pageviews' => $usercar->pageviews
             );     
         }
         return $response;

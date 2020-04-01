@@ -2,31 +2,72 @@
 namespace App\Repositories;
 
 use App\Plan;
+use App\Subscription;
 use App\Repositories\Helper;
 use App\User;
 
 class PlanRepository extends Helper {
 
 	protected $model;
+
 	public function __construct(Plan $plan){
 		$this->model = $plan;
 	}
 
 	/*********************************************************
 	 * this function get all plans
+	 * *******************************************************
 	 * @return [type] [description]
+	 * *******************************************************
 	 */
-	public function getAllPlans() {
+	public function getAllPlans($user) {
+		
+		$response = array();
+		$free_plan = $this->checkForFreePlan($user);
+		
+
 		$plans = Plan::get();
-		return $plans;
+		foreach( $plans as $plan) {
+
+			$isFree = false; 
+			if ($plan->cost == 'free' AND $free_plan == true) {
+				$isFree = true;
+			}
+
+			$response[] = array ( 
+				'name' => $plan->name,  
+				'cost' => $plan->cost, 
+				'ads_amount' => $plan->ads_amount, 
+				'photos_amount' => $plan->photos_amount, 
+				'slug' => $plan->slug,
+				'duration' => $plan->duration, 
+				'free' => $isFree
+			);
+		}
+		return $response;
 	}
 
 	/**
-	 * *****************************************************
+	 * *************************************************************
+	 * [checkForFreePlan description]
+	 * *************************************************************
+	 * @param  [type] $user_id [description]
+	 * @return [type]          [description]
+	 * *************************************************************
+	 */
+	public function checkForFreePlan($user_id) {
+		$subscription = Subscription::where('user_id', '=', $user_id)->where('plan_id', '=', 1)->first();
+		if ($subscription) {
+			return true;
+		}
+	}
+
+	/**
+	 * *************************************************************
 	 * This get user plan by user id
 	 * @param  [type] $user [description]
 	 * @return [type]       [description]
-	 * *****************************************************
+	 * *************************************************************
 	 */
 	public function getUserPlanByUserId($user) {
 		$userplans = $this->userCars($user, 'cars');
@@ -34,9 +75,11 @@ class PlanRepository extends Helper {
 	}
 
 	/**
+	 * *************************************************************
 	 * [electUserPlan description]
 	 * @param  array  $array [description]
 	 * @return [type]        [description]
+	 * *************************************************************
 	 */
 	public function selectUserPlan(array $array) {
 
@@ -53,9 +96,11 @@ class PlanRepository extends Helper {
 	}
 
 	/**
+	 * ************************************************************
 	 * [getPlanBySlug description]
 	 * @param  [type] $slug [description]
 	 * @return [type]       [description]
+	 * ************************************************************
 	 */
 	public function getPlanBySlug( $slug ) {
 
@@ -74,6 +119,7 @@ class PlanRepository extends Helper {
 			'id' => $plan->id,
 			'name' => $plan->name,
 			'cost' =>  $money,
+			'price' =>  $plan->cost,
 			'duration' => $plan->duration
 		);
 

@@ -16,9 +16,6 @@ class CreateUserFilterTable extends Migration
         Schema::create('user_filter', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('user_id');
-            $table->json('parish')->nullable();
-            $table->json('makes')->nullable();
-            $table->json('body_style')->nullable();
             $table->string('min_year')->nullable();
             $table->string('max_year')->nullable();
             $table->string('drive_type')->nullable();

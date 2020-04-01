@@ -23,6 +23,9 @@ class MakeService {
 		if ( $request == 'all') {
 			return $this->model->all($user_id);
 		}
+
+		return $this->model->all($user_id);
 	}
 }
 ?>
+

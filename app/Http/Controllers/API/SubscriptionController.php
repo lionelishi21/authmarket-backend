@@ -18,6 +18,7 @@ class SubscriptionController extends Controller
 
 
     public function subscribe(Request $request) {
+
     	$store = $this->subscriptions->save($request);
     	return Response::json($store);
     }

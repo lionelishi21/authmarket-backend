@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FilterBodystyle extends Model
+class InvoiceLine extends Model
 {
     //
 }

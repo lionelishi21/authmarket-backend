@@ -118,6 +118,41 @@ class CarServices {
 	public function delete ( $id) {
 		return $this->carrepository->delete($id);
 	}
+
+	/**
+	 * this function get cars with the most views
+	 * @return [type] [description]
+	 */
+	public function hotcars() {
+		return $this->carrepository->GetHotCars();	
+	}
+
+	/**
+	 * this function add view to car
+	 * @param  [type] $car_id [description]
+	 * @return [type]         [description]
+	 */
+	public function increment_page($car_id) {
+		return $this->carrepository->incrementPageViews($car_id);
+	}
+	
+	/**
+	 * This function get inactive cars
+	 * @param  [type] $user [description]
+	 * @return [type]       [description]
+	 */
+	public function get_inactive_cars( $user) {
+		return $this->carrepository->getUserInactiveCarByUserId($user);
+	}
+
+	/**
+	 * this function get active cars
+	 * @param  [type] $user [description]
+	 * @return [type]       [description]
+	 */
+	public function get_active_cars( $user) {
+		return $this->carrepository->GetUserActiveCarByUserId( $user);
+	}
 }
 
 

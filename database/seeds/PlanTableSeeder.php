@@ -30,7 +30,7 @@ class PlanTableSeeder extends Seeder
         	'photos_amount' => 15,
         	'duration' => 30,
         	'premium_placement' => true,
-        	'alerts' => false,
+        	'alerts' => true,
         ]);
          DB::table('plans')->insert([
         	'name' => 'Dealer',
@@ -40,17 +40,17 @@ class PlanTableSeeder extends Seeder
         	'photos_amount' => 15,
         	'duration' => 30,
         	'premium_placement' => true,
-        	'alerts' => false,
+        	'alerts' => true,
         ]);
          DB::table('plans')->insert([
-        	'name' => 'Premium Deails',
-            'slug' => 'premium-dealer-plan',
+        	'name' => 'Premium',
+            'slug' => 'premium-plan',
         	'cost' => 10000,
         	'ads_amount' => 100,
         	'photos_amount' => 100,
         	'duration' => 30,
         	'premium_placement' => true,
-        	'alerts' => false,
+        	'alerts' => true,
         ]);
     }
 }

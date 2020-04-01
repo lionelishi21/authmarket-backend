@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PlanService;
+use Response;   
 
 
 class PlansController extends Controller
@@ -21,8 +22,8 @@ class PlansController extends Controller
      * @return [type] [description]
      * ***************************************************
      */
-    public function index() {
-    	$plans = $this->planservice->index();
+    public function index(Request $request) {
+        $plans = $this->planservice->index($request);
     	return Response::json($plans);
     }
 

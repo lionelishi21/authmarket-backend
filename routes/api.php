@@ -16,25 +16,30 @@ use Illuminate\Http\Request;
 /** Application and **/
 Route::middleware('auth:api')->group(function () {
 
-	/*Route::get('/user', function(Request $request){ 
-	     return $request->user();
+	Route::group(['prefix' => 'subscriptions'], function() {
+		Route::post('/create', 'API\SubscriptionController@subscribe');
+		Route::get('/check', 'API\SubscriptionController@checkSubscription');
 	});
-	*/
+
+	Route::group(['prefix' => 'payments'], function() {
+		Route::get('/activity', 'PaymentController@index');
+		Route::get('/invoice/{id}', 'PaymentController@invoice');
+	});
 
 	Route::group(['prefix' => 'user'],function(){
+		
 		Route::get('/', function(Request $request){
 		    return $request->user();
 	  	});
+
+	  	Route::post('/save-userfilter', 'UserController@SaveUserFilter');
 	  	Route::post('/save-filter', 'UserController@SaveUserFilter');
 	  	Route::get('/get-user-filter', 'UserController@UserFilter');
 	  	Route::get('/filters', 'UserController@GetUserFilter');
-	  	Route::post('/save-userfilter', 'UserController@SaveUserFilter');
 	});
-
 
 	Route::get('parishes', 'UserController@Parish');
 	Route::get('bodystyles', 'UserController@Bodystyles');
-
 
 	Route::group(['prefix' => 'plans'], function(){
 		Route::get('/select-plan/{id}', 'API\PlanController@selectPlan');
@@ -43,11 +48,9 @@ Route::middleware('auth:api')->group(function () {
 		Route::post('/update/{id}', 'API\PlanController@update');
 	});
 
-
 	Route::group(['prefix' => 'invoices'], function() {
 		Route::get('/{id}', 'InvoiceController@index');
 	});
-
 
 	Route::group(['prefix' => 'cars'],function(){
 		Route::get('/car-details/{id}', 'CarsController@edit');
@@ -56,26 +59,39 @@ Route::middleware('auth:api')->group(function () {
 		Route::post('/post', 'CarsController@create');
 		Route::post('/update', 'CarsController@update');
 		Route::post('/delete/{id}', 'CarsController@destroy');
-		/**********************************************************/
+		Route::get('/filter', 'CarsController@mostViewCars');
+
+		/* active cars and inactive */
+		Route::get('/inactive', 'CarsController@getUserInactiveCars');
+		Route::get('/active', 'CarsController@getUserActiveCars');
 	});
 
-	Route::group(['prefix' => 'subscriptions'], function() {
-		Route::post('/create', 'API\SubscriptionController@subscribe');
-		Route::get('/check', 'API\SubscriptionController@checkSubscription');
-	});
 
-	Route::get('/logout', 'API\AuthController@logout');
-	Route::get('/profile', 'ApiProfileController@profile');
+
 	Route::post('/update-profile', 'ApiProfileController@update');
+	Route::get('/profile', 'ApiProfileController@profile');
+	Route::get('/logout', 'API\AuthController@logout');
+    Route::get('/plans', 'PlansController@index');
 
+    /**
+     * ***********************************************************
+     * Paypal Checkout
+     * ***********************************************************
+     */
+    Route::post('/create-payment', 'PaymentController@create');
+    
+    Route::post('payment', 'PayPalController@payment');
+	Route::get('cancel', 'PayPalController@cancel');
+	Route::get('payment/success', 'PayPalController@success');
 });
 
-Route::get('parishes', 'UserController@Parish');
-Route::get('bodystyles', 'UserController@Bodystyles');
-
+/* Plans Routes */
 Route::get('/plan-details/{id}', 'API\PlanController@details');
 Route::get('/user-plan', 'API\PlanController@userPlans');
-Route::get('/plans', 'API\PlanController@index');
+
+Route::get('bodystyles', 'UserController@Bodystyles');
+Route::get('parishes', 'UserController@Parish');
+
 
 
 # ========================================================
@@ -130,5 +146,10 @@ Route::get('vehicles/{vehicle}/vehicle', [
 	'uses' => 'VehiclesController@vehicle',
 	'as' => 'api.vehicles.vehicle'
 ]);
+
+Route::get('/viewcounts/{id}', 'CarsController@countPageviews');
+Route::get('/hot-cars', 'CarsController@mostViewCars');
+
+
 
 // Route::middleware('auth:api')->get('/profile', 'Api\ProfileController@getUser');

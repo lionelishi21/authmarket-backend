@@ -1,13 +1,13 @@
 <?php 
 namespace App\Repositories;
 
-use App\Repositories\Helper;
 use App\CarFeatureEntertainment;
 use App\CarFeatureSafety;
 use App\CarFeatureOther;
 use App\CarFeatureSeat;
 use App\Activity;
 use App\CarFeature;
+use App\Bodystyle;
 use App\Subscription;
 use App\User;
 use Carbon\Carbon;
@@ -52,9 +52,9 @@ class Cars extends Helper {
 
 		$main = json_decode($attributes['main']);
 		$main->added_by = $user_id;
+		$batch_id = uniqid();
 
-		$randomNum = substr(str_shuffle("0123456789"), 0, 5);
-		$main->batch_id = $randomNum;
+		$randomNum = substr(str_shuffle("0123456789"), 0, 10);
 		$main->price = $this->getAmount($main->price);
 
 		$response = array();
@@ -64,12 +64,16 @@ class Cars extends Helper {
 		$created = Car::create( $details );
 		$car_id = $created->id;
 
+		$update = Car::find($car_id);
+		$update->batch_id = 'ATJ-'.$car_id.''.$batch_id;
+		$update->update();
 
 		$car_features = $attributes['car_features'];
 		$car_seats = $attributes['car_seats'];
 		$car_others = $attributes['car_others'];
 		$car_safety = $attributes['car_safety'];
 		$car_entertainment  = $attributes['car_entertainment'];
+
 
 		// $profile = $attributes['profile'];
 
@@ -85,7 +89,7 @@ class Cars extends Helper {
 
 		if ( isset( $car_others )) {
 			
-			$other = explode(',', $car_others);
+			$others = explode(',', $car_others);
 			$this->saveCarFeatures($others, $car_id, 'others');
 		}
 
@@ -163,8 +167,8 @@ class Cars extends Helper {
 	 * @return [type]          [description]
 	 */
 	public function getUserCars($user, $filter) {
-			$cars = Car::where('added_by', '=', $user)->get();
-			return $cars;
+		$cars = Car::where('added_by', '=', $user)->get();
+		return $cars;
 	}
 
 
@@ -180,6 +184,7 @@ class Cars extends Helper {
 			'subscribe' => $this->checkIfSubscribe($carDetails->id),
 			'batch_id' => $carDetails->batch_id,
 			'make_id' => $carDetails->make_id,
+			'pageviews' => $carDetails->pageviews,
 			'model_id' => $carDetails->model_id,
 			'milage' => $carDetails->milage,
 			'year_id' => $carDetails->year_id,
@@ -256,6 +261,7 @@ class Cars extends Helper {
 				'make' => $this->getMakeById($car->make_id),
 				'model' => $this->getModelById($car->model_id),
 				'year' => $this-> getModelYearById($car->year_id),
+				'pageviews' => $car->pageviews,
 				// 'vehicle' => $this->getVehicleById($vehicle->id),
 				'location' => $car->parsih,
 				'price' => $car->price,
@@ -289,6 +295,7 @@ class Cars extends Helper {
 				'year' => $this->getYearById($car->year_id),
 				// 'vehicle' => $this->getVehicleById($car->vehicle_id),
 				'location' => $car->parsih,
+				'pageviews' => $car->pageviews,
 				'price' => $car->price,
 				'interior_color' => $car->interior_color,
 				'exterior_color' => $car->exterior_color,
@@ -327,16 +334,24 @@ class Cars extends Helper {
 				'make_id' => $car->make_id,
 				'make' => $this->getMakeById($car->make_id),
 				'model' => $this->getModelById($car->model_id),
+				'model_id' => $car->model_id,
+				'year_id' =>  $car->year_id,
 				'year' => $this->getYearById($car->year_id),
 				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
 				'profile' => $this->getUserProfileByUserId($car->added_by),
+				'bodystyle_id' => $car->body_type,
+				'bodystyle' => Bodystyle::find($car->body_type)->name,
 				'location' => $car->parsih,
+				'pageviews' => $car->pageviews,
 				'price' => $car->price,
+				'doors' => $car->doors,	
 				'interior_color' => $car->interior_color,
 				'exterior_color' => $car->exterior_color,
 				'desc' => $car->description,
 				'location' => $car->parish.', '. $car->district,
+				'parish' => $car->parish,
 				'district' => $car->district,
+				'drive_type' => $car->drive_type,
 				'fuel_type' => $car->fuel_type,
 				'parish' => $car->parish,
 				'milage' => $car->milage,
@@ -422,6 +437,7 @@ class Cars extends Helper {
 				'subscribe' => $this->checkIfSubscribe($car->id),
 				'batch_id' => $car->batch_id,
 				'make_id' => $car->make_id,
+				'pageviews' => $car->pageviews,
 				'make' => $this->getMakeById($car->make_id),
 				'model' => $this->getModelById($car->model_id),
 				'year' => $this->getYearById($car->year_id),
@@ -593,27 +609,22 @@ class Cars extends Helper {
 	        return $response;
 	  }
 
+  /**
+   * get user activites by user id
+   * @param  [type] $user_id [description]
+   * @return [type]          [description]
+   */
+  public function getUserActivities( $user_id ) {
+  	$activity = new Activity;
+  	return $activity::find($user_id);
+  }
 
-
-	  public function getUserActivities( $user_id ) {
-	  	$activity = new Activity;
-	  	return $activity::find($user_id);
-	  }
-
-	  /**
-	 * this function check id car is subscripe to a plan
-	 * @param  [type] $car_id [description]
-	 * @return [type]         [description]
-	 */
-	public function checkIfSubscribe($car_id) {
-
-		$subscriptions = Subscription::where('car_id', '=', $car_id)->first();
-		if ( isset($subscriptions)) {
-			return true;
-		}
-		return false;
-	}
-
+  /**
+   * This function get user cars details
+   * @param  [type] $user_id [description]
+   * @param  [type] $options [description]
+   * @return [type]          [description]
+   */
   public function userCars($user_id, $options) {
     $car = new Car;
     $subscription = new Subscription;
@@ -657,6 +668,157 @@ class Cars extends Helper {
         return $response;
     }
     
+  }
+
+  /**
+   * ***************************************************
+   * this function get the top 10 must view cars
+   * ***************************************************
+   * @param  [type] $attributes [description]
+   * @return [type]             [description]
+   * ***************************************************ß
+   */
+  public function GetHotCars() {
+
+  	  $response = array();
+  	  $car = new Car;
+  	  $cars = $car->orderBy('pageviews', 'desc')->get();
+
+  	  foreach($cars as $car ) {
+  		$response[] = array(
+	        'id' => $car->id,
+			'subscribe' => $this->checkIfSubscribe($car->id),
+			'batch_id' => $car->batch_id,
+			'make_id' => $car->make_id,
+			'make' => $this->getMakeById($car->make_id),
+			'model' => $this->getModelById($car->model_id),
+			'year' => $this->getYearById($car->year_id),
+			'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
+			'profile' => $this->getUserProfileByUserId($car->added_by),
+			'location' => $car->parsih,
+			'price' => $car->price,
+			'pageviews' => $car->pageviews,
+			'interior_color' => $car->interior_color,
+			'exterior_color' => $car->exterior_color,
+			'desc' => $car->description,
+			'location' => $car->parish.', '. $car->district,
+			'district' => $car->district,
+			'fuel_type' => $car->fuel_type,
+			'parish' => $car->parish,
+			'milage' => $car->milage,
+			'steering' => $car->steering,
+			'image' => $this->getCarImage($car->id),
+			'images' => $car->images,
+			'features' => $car->feature,
+			'safety' => $car->safety,
+			'entertainment' => $car->entertainment,
+			'other' => $car->other,
+			'seat' => $car->seat
+  		);
+  	  }
+  	  return $response;
+  }
+
+  /**
+   * *********************************************************************
+   * This function get all inactive car
+   * *********************************************************************
+   * @param  [type] $user_id [description]
+   * @return [type]          [description]
+   * *********************************************************************
+   */
+  public function getUserInactiveCarByUserId( $user_id ){
+
+  		$response = array();
+  		$cars = $this->cars->where('added_by', '=', $user_id)->get();
+  		foreach ( $cars as $car) {
+  			
+  			$isSubscribe = $this->checkIfSubscribe($car->id);
+  			if ($isSubscribe == true) {
+  				continue;
+  			}
+
+  			$response[] = array( 
+  				'id' => $car->id,
+  				'image' => $this->getCarImage($car->id),
+  				'batch_id' => $car->batch_id,
+  				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
+				'profile' => $this->getUserProfileByUserId($car->added_by),
+				'location' => $car->parish.', '. $car->district,
+				'pageviews' => $car->pageviews, 
+				'interior_color' => $car->interior_color,
+				'exterior_color' => $car->exterior_color,
+				'price' => $car->price
+  			);
+  		}
+
+  		return $response;
+  }
+
+  /**
+   * ******************************************************
+   * This function get active car user
+   * ******************************************************
+   * @param  [type] $user_id [description]
+   * @return [type]          [description]
+   * ******************************************************
+   */
+  public function getUserActiveCarByUserId($user_id) {
+
+  		$response = array();
+  		$now = Carbon::now();
+
+  		$cars = $this->cars->where('added_by', '=', $user_id)->get();
+  		foreach ( $cars as $car) {
+  			$isSubscribe = $this->checkIfSubscribe($car->id);
+  			if ($isSubscribe == false) {
+  				continue;
+  			}
+
+  			$sub_details = Subscription::where('car_id', '=', $car->id)->first();
+  			$response[] = array( 
+				'id' => $car->id,
+				'sub' => $this->checkIfSubscribe($car->id),
+				'make' => $this->getMakeById($car->make_id),
+				'image' => $this->getCarImage($car->id),
+				'days' => $now->diffInDays($sub_details->end_time),
+				'batch_id' => $car->batch_id,
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
+				'profile' => $this->getUserProfileByUserId($car->added_by),
+				'location' => $car->parish.', '. $car->district,
+				'pageviews' => $car->pageviews, 
+				'interior_color' => $car->interior_color,
+				'exterior_color' => $car->exterior_color,
+				'price' => $car->price
+  			);
+  		}
+  		return $response;
+  }
+
+  /**
+   * this fumnction increment the car page
+   * @return [type] [description]
+   */
+  public function incrementPageViews($car_id) {
+
+  		$car = $this->cars->where('batch_id', '=', $car_id)->first();
+  		$response = array();
+
+		if ($car->pageviews == 0) {
+			$car->pageviews = 1; 
+			$car->save();
+		} else {
+			$increment = $car->pageviews + 1;
+  			$car->pageviews = $increment;
+  			$car->save();
+		}
+  			
+    //  	return $response; 
   }
 
 }

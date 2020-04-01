@@ -13,6 +13,9 @@ class BodystyleTableSeeder extends Seeder
     {
         DB::table('bodystyles')->truncate(); 
         DB::table('bodystyles')->insert([
+            'name' => 'Sedan'
+        ]);
+        DB::table('bodystyles')->insert([
         	'name' =>  'Hatchback',
         ]);
         DB::table('bodystyles')->insert([
