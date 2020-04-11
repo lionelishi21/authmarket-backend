@@ -340,7 +340,7 @@ class Cars extends Helper {
 				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
 				'profile' => $this->getUserProfileByUserId($car->added_by),
 				'bodystyle_id' => $car->body_type,
-				'bodystyle' => Bodystyle::find($car->body_type)->name,
+				//'bodystyle' => Bodystyle::find($car->body_type)->name,
 				'location' => $car->parsih,
 				'pageviews' => $car->pageviews,
 				'price' => $car->price,
