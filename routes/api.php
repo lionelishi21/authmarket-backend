@@ -70,7 +70,7 @@ Route::middleware('auth:api')->group(function () {
 
 	Route::post('/update-profile', 'ApiProfileController@update');
 	Route::get('/profile', 'ApiProfileController@profile');
-	Route::get('/logout', 'Api\AuthController@logout');
+	Route::get('/logout', 'API\AuthController@logout');
     Route::get('/plans', 'PlansController@index');
 
     /**
