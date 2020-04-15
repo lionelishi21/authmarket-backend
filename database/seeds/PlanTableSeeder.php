@@ -12,23 +12,12 @@ class PlanTableSeeder extends Seeder
     public function run()
     {
         DB::table('plans')->truncate();
-        DB::table('plans')->insert([
-        	'name' => 'Starter',
-            'slug' => 'starter-plan',
-        	'cost' => 'free',
-        	'ads_amount' => 1,
-        	'photos_amount' => 5,
-        	'duration' => 20,
-        	'premium_placement' => false,
-        	'alerts' => false,
-        ]);
          DB::table('plans')->insert([
          	'name' => 'Basic',
         	'cost' => 1000,
             'slug' => 'basic-plan',
-        	'ads_amount' => 5,
-        	'photos_amount' => 15,
-        	'duration' => 30,
+        	'ads_amount' => 1,
+        	'duration' => 15,
         	'premium_placement' => true,
         	'alerts' => true,
         ]);
@@ -36,9 +25,9 @@ class PlanTableSeeder extends Seeder
         	'name' => 'Dealer',
             'slug' => 'dealer-plan',
         	'cost' => 5000,
-        	'ads_amount' => 5,
+        	'ads_amount' => 6,
         	'photos_amount' => 15,
-        	'duration' => 30,
+        	'duration' => 150,
         	'premium_placement' => true,
         	'alerts' => true,
         ]);
@@ -46,9 +35,9 @@ class PlanTableSeeder extends Seeder
         	'name' => 'Premium',
             'slug' => 'premium-plan',
         	'cost' => 10000,
-        	'ads_amount' => 100,
+        	'ads_amount' => 13,
         	'photos_amount' => 100,
-        	'duration' => 30,
+        	'duration' => 15,
         	'premium_placement' => true,
         	'alerts' => true,
         ]);

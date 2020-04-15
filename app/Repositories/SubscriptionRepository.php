@@ -26,7 +26,6 @@ class SubscriptionRepository {
 	 */
 	public function subscribe( array $array) {
 
-		return $array;
 		$plan = $array['car'];
 		$payment = $array['payments'];
 
@@ -60,10 +59,10 @@ class SubscriptionRepository {
 
 					$payment = new Payment;
 					$payment->car_id = $plan['car_id'];
-					$payment->payment_gateway = $payment['payer']['payment_method']; 
+					$payment->payment_gateway = $array['payments']['payer']['payment_method']; 
 					$payment->invoice_id = $invoice->id;
 					$payment->plan_id = $plan['plan_id'];
-					$payment->amount = $planDetails['amount'];
+					$payment->amount = $planDetails['cost'];
 					$payment->user_id = $array['user_id'];
 					$payment->save();
 

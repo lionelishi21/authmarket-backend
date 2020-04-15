@@ -66,7 +66,7 @@ class Cars extends Helper {
 
 		$update = Car::find($car_id);
 		$update->batch_id = 'ATJ-'.$car_id.''.$batch_id;
-		$update->update();
+		$update_info = $update->update();
 
 		$car_features = $attributes['car_features'];
 		$car_seats = $attributes['car_seats'];
@@ -126,7 +126,7 @@ class Cars extends Helper {
 		  $save_image = $this->saveImages($attributes['image5'], $car_id, $user_id );
 		}
 
-		return $response = array('response' => $created);
+		return $response = array('response' => $update->batch_id);
 	}
 
 	/**
