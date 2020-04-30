@@ -25,15 +25,15 @@ class PaymentController extends Controller {
 
         foreach( $payments as $payment) {
 
-            $amount = Plan::find($payment->plan_id)->cost;
             $response[] = array( 
                 'id' => $payment->id,   
                 'gateway' => $payment->payment_gateway,
-                'amount' => $amount,
+                'amount' => $payment->amount,
                 'date'=> Carbon::parse($payment->created_at)->toFormattedDateString(),
                 'invoice_id' => $payment->invoice_id, 
                 'invoice' => $payment->invoice,
-                'user' => $payment->user
+                'user' => $payment->user,
+                'credits' => $payment->credits
             );
         }
         return Response::json($response);

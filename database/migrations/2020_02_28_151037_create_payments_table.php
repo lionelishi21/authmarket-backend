@@ -18,7 +18,7 @@ class CreatePaymentsTable extends Migration
             $table->integer('car_id');
             $table->string('payment_gateway');
             $table->integer('invoice_id');
-            $table->integer("plan_id");
+            $table->integer("credits");
             $table->integer('amount');
             $table->integer('user_id');
             $table->timestamps();

@@ -5,6 +5,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
+use App\Repositories\Referrals;
 use DB;
 
 class AuthController extends Controller
@@ -22,10 +23,13 @@ class AuthController extends Controller
         if ($user) {
 
 	        if (Hash::check($request->password, $user->password)) {
-	            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-	            $response = ['token' => $token, 'user' => $user];
-	            return response($response, 200);
-	        } else {
+
+                $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+                $response = ['token' => $token, 'user' => $user, 'message' => 'Login successfull'];
+
+                return response($response, 200);
+
+            } else {
 	            $response = "Password missmatch";
 	            return response($response, 422);
 	        }
@@ -49,16 +53,23 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        User::create([
+       $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $user->sendApiEmailVerificationNotification();
+        
+        /**
+         *  save refferrals 
+         */
+        if ($request->referral_id) {
+             $ref = new Referrals;
+             $ref_id = $ref->saveReferral($user->id, $request->referral_id);
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Register success.',
-        ]);
+        $success['message'] = 'Please confirm yourself by clicking on verify user button sent to you on your email';
+        return response()->json(['success' => $success]);
     }
     
     /**

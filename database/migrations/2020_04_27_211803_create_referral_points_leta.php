@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFcmToUserTable extends Migration
+class CreateReferralPointsLeta extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddFcmToUserTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::create('referral_points', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->integer('referral_id');
+            $table->integer('credit_id');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddFcmToUserTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('referral_points');
     }
 }

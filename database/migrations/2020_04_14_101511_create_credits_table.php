@@ -15,8 +15,9 @@ class CreateCreditsTable extends Migration
     {
         Schema::create('credits', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('type_id');   
-            $table->boolean('active')->default(0)
+            $table->integer('type_id');
+            $table->integer('user_id');   
+            $table->boolean('active')->default(0);
             $table->timestamps();
         });
     }
@@ -31,3 +32,4 @@ class CreateCreditsTable extends Migration
         Schema::dropIfExists('credits');
     }
 }
+

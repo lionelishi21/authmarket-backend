@@ -17,7 +17,7 @@ class CreateSubscriptionTable extends Migration
             $table->bigIncrements('id');
             $table->integer('user_id');
             $table->integer('car_id');
-            $table->integer('plan_id');
+            $table->integer('credit_id');
             $table->datetime('start_time');
             $table->datetime('end_time');
             $table->timestamps();

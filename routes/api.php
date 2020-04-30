@@ -16,6 +16,18 @@ use Illuminate\Http\Request;
 /** Application and **/
 Route::middleware('auth:api')->group(function () {
 
+
+	Route::group(['prefix' => 'credits'], function() {
+		Route::post('/create', 'API\SubscriptionController@purchaseCredit');
+		Route::get('/', 'API\CreditsController@index');
+		Route::get('/start', 'API\CreditsController@useCredit');
+	});
+
+
+	Route::get('/referral', 'ReferralController@index');
+	Route::get('/referees', 'ReferralController@referees');
+	Route::get('/referral-points', 'ReferralController@points');
+
 	Route::group(['prefix' => 'subscriptions'], function() {
 		Route::post('/create', 'API\SubscriptionController@subscribe');
 		Route::get('/check', 'API\SubscriptionController@checkSubscription');
@@ -83,7 +95,25 @@ Route::middleware('auth:api')->group(function () {
     Route::post('payment', 'PayPalController@payment');
 	Route::get('cancel', 'PayPalController@cancel');
 	Route::get('payment/success', 'PayPalController@success');
+
+	Route::get('email/resend', 'API\VerificationController@resend')->name('verificationapi.resend');
 });
+
+Route::get('/referral-points', 'ReferralController@points');
+// Route::group(['prefix' => 'credits'], function() {
+// 	Route::get('/create', 'API\SubscriptionController@purchaseCredit');
+// 	Route::get('/', 'API\CreditsController@index');
+// });
+
+/*
+|-----------------------------------------------------------------------------
+| Email Verification API
+|-----------------------------------------------------------------------------
+| Here is wehere the messaging api goes for the application
+|-----------------------------------------------------------------------------
+*/
+Route::get('email/verify/{id}', 'API\VerificationController@verify')->name('verification.verify');
+Route::get('email/resend', 'API\VerificationController@resend')->name('verificationapi.resend');
 
 /* Plans Routes */
 Route::get('/plan-details/{id}', 'API\PlanController@details');
@@ -91,9 +121,6 @@ Route::get('/user-plan', 'API\PlanController@userPlans');
 
 Route::get('bodystyles', 'UserController@Bodystyles');
 Route::get('parishes', 'UserController@Parish');
-
-
-
 # ========================================================
 #                   Public Car Routes                    =
 # ========================================================

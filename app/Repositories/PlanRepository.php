@@ -118,6 +118,7 @@ class PlanRepository extends Helper {
 		$response = array (
 			'id' => $plan->id,
 			'name' => $plan->name,
+			'credit' => $plan->ads_amount, 
 			'cost' =>  $money,
 			'price' =>  $plan->cost,
 			'duration' => $plan->duration

@@ -13,6 +13,7 @@ use App\FilterParish;
 use App\Bodystyle;
 use App\Parish;
 use App\UserFilter;
+use App\Credit;
 
 class ProfileRepository extends Helper{
 
@@ -102,10 +103,13 @@ class ProfileRepository extends Helper{
 	  public function getUserProfileByUserId( $user_id ) {
 
 	       $user = User::find($user_id);
+
+
 	       $response = array(
 	          'name' => $user->name,
 	          'username' => $user->username,
 	          'email' => $user->email,
+	          'isVerify' => $user->email_verified_at,
 	          'dealer' => $user->isDealer,
 	          'company' => $user->company,
 	          'address' => $user->address,
@@ -119,9 +123,23 @@ class ProfileRepository extends Helper{
 	          'user_active_count' => $this->userCars($user_id, 'active'),
 	          'cars' => $this->userCars($user_id, 'cars'),
 	          'user_inactive_count' => $this->userCars($user_id, 'inactive'),
+	          'credits_counts' => $this->userCreditCount($user_id),
 	          'activity' => $this->getUserActivities($user_id)
 	        );
+
 	        return $response;
+	  }
+	  /**
+	   * [userCreditCount description]
+	   * @return [type] [description]
+	   */
+	  public function userCreditCount($user) {
+	  		
+	  		$credits = Credit::where('user_id', '=', $user)->get();
+	  		if ( $credits ){
+	  			return count($credits);
+	  		}
+	  		return 0;
 	  }
 
 	  /**

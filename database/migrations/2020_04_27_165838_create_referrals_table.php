@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddPageviewsColumnToCarsTable extends Migration
+class CreateReferralsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddPageviewsColumnToCarsTable extends Migration
      */
     public function up()
     {
-        Schema::table('cars', function (Blueprint $table) {
-             $table->integer('pagevies')->default(0);
+        Schema::create('referrals', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->integer('referer_id');
+            $table->integer('referee_id');
+            $table->timestamps();
         });
     }
 
@@ -25,7 +28,6 @@ class AddPageviewsColumnToCarsTable extends Migration
      */
     public function down()
     {
-        Schema::table('cars', function (Blueprint $table) {
-        });
+        Schema::dropIfExists('referrals');
     }
 }

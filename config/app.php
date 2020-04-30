@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'AutoMarket JM'),
 
     /*
     |--------------------------------------------------------------------------
@@ -163,7 +163,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-
+        Shivella\Bitly\BitlyServiceProvider::class,
 
 
         /*
@@ -237,8 +237,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'PayPal' => Srmklive\PayPal\Facades\PayPal::class,
-
-
+        'Bitly' => Shivella\Bitly\Facade\Bitly::class,
 
     ],
 

@@ -1,9 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Auth\Access\AuthorizationException;
+use App\User;
 
 class VerificationController extends Controller
 {
@@ -34,7 +38,7 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth:api')->only('resend');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
@@ -50,22 +54,16 @@ class VerificationController extends Controller
     public function verify(Request $request)
     {
 
-        auth()->loginUsingId($request->route('id'));
+            $userID = $request['id'];
+			$user = User::findOrFail($userID);
 
-        if ($request->route('id') != $request->user()->getKey()) {
-            throw new AuthorizationException;
-        }
-
-        if ($request->user()->hasVerifiedEmail()) {
-            return response(['message' => 'Already verified']);
-        }
-
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
-
-        return response(['message' => 'Successfully verified']);
+			$date = date('Y-m-d g:i:s');
+			$user->email_verified_at = $date; 
+			// to enable the “email_verified_at field of that user be a current time stamp by mimicing the must verify email feature
+			$user->save();
+			return response()->json('Email verified');
     }
+
 
     /**
      * Resend the email verification notification.
@@ -76,16 +74,12 @@ class VerificationController extends Controller
     public function resend(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
-          
-            return response(['message' => 'Already verified']);
-        }
+			return response()->json('User already have verified email!', 422);
+			// return redirect($this->redirectPath());
+		}
 
-        $request->user()->sendEmailVerificationNotification();
-
-        if ($request->wantsJson()) {
-            return response(['message' => 'Email Send'])
-        }
-
-        return back()->with('resent', true);
-    }
+		$request->user()->sendEmailVerificationNotification();
+		return response()->json('The notification has been resubmitted');
+		// return back()->with(‘resent’, true);
+	}
 }

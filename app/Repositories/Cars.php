@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\CarFeatureEntertainment;
+use App\Repositories\Credit;
 use App\CarFeatureSafety;
 use App\CarFeatureOther;
 use App\CarFeatureSeat;
@@ -125,6 +126,9 @@ class Cars extends Helper {
 		if ( isset( $attributes['image5'])) {
 		  $save_image = $this->saveImages($attributes['image5'], $car_id, $user_id );
 		}
+
+		$credits = new Credits;
+		$applyACredit = $credits->useUserCredit($user_id, $car_id);
 
 		return $response = array('response' => $update->batch_id);
 	}
@@ -603,6 +607,7 @@ class Cars extends Helper {
 	          'user_active_count' => $this->userCars($user_id, 'active'),
 	          'cars' => $this->userCars($user_id, 'cars'),
 	          'user_inactive_count' => $this->userCars($user_id, 'inactive'),
+	          'verify_count' = 10,
 	          'activity' => $this->getUserActivities($user_id)
 	        );
 
