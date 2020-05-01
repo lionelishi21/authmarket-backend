@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 use Illuminate\Auth\Access\AuthorizationException;
+use App\Repositories\Credits;
 use App\User;
 
 class VerificationController extends Controller
@@ -33,7 +34,7 @@ class VerificationController extends Controller
 
     /**
      * Create a new controller instance.
-     *
+     * 
      * @return void
      */
     public function __construct()
@@ -54,14 +55,19 @@ class VerificationController extends Controller
     public function verify(Request $request)
     {
 
-            $userID = $request['id'];
-			$user = User::findOrFail($userID);
+        $userID = $request['id'];
+		
+		$user = User::findOrFail($userID);
+		$date = date('Y-m-d g:i:s');
+		$user->email_verified_at = $date; 
+		$user->save();
 
-			$date = date('Y-m-d g:i:s');
-			$user->email_verified_at = $date; 
-			// to enable the “email_verified_at field of that user be a current time stamp by mimicing the must verify email feature
-			$user->save();
-			return response()->json('Email verified');
+		if ( $user->save()) {
+			$credit = new Credits;
+			$credit->purchaseCredit($userID, 1);
+		}
+		
+		return response()->json('Email verified');
     }
 
 

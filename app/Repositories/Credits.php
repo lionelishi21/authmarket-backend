@@ -106,6 +106,34 @@ class Credits {
 		}
 	}
 
+
+
+    /**
+     * **************************************************************
+     * This function purrchase credit from user
+     * @return [type] [description]
+     * **************************************************************
+     */
+    public function purchaseCredit($user_id, $amount) {
+
+        $type = 2;
+        $creditAmount = $amount;
+  
+        for ($x = 0; $x < $creditAmount; $x++) {
+            $credit = new Credit;
+            $credit->type_id = $type;
+            $credit->user_id = $user_id;
+            $credit->save();
+        }
+
+        $response = [
+            'msg' => 'successfully save user credit(s)',
+        ];
+
+        return response()->json( $response, 200);
+    }
+
+
 }
  
 
