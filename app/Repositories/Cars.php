@@ -404,7 +404,7 @@ class Cars extends Helper {
 			$listings = $listings->where('price', '>=', $attributes['minPrice']);
 		}
 
-		if ( $attributes['bodyType']) {
+		if ( $attributes['bodyStyle']) {
 			$listings = $listings->where('body_type', '=', $attributes['bodyType']);
 		}
 
