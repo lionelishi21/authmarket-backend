@@ -607,7 +607,7 @@ class Cars extends Helper {
 	          'user_active_count' => $this->userCars($user_id, 'active'),
 	          'cars' => $this->userCars($user_id, 'cars'),
 	          'user_inactive_count' => $this->userCars($user_id, 'inactive'),
-	          'verify_count' = 10,
+	          'verify_count' => 10,
 	          'activity' => $this->getUserActivities($user_id)
 	        );
 
