@@ -112,6 +112,7 @@ Route::get('/referral-points', 'ReferralController@points');
 | Here is wehere the messaging api goes for the application
 |-----------------------------------------------------------------------------
 */
+
 Route::get('email/verify/{id}', 'API\VerificationController@verify')->name('verification.verify');
 Route::get('email/resend', 'API\VerificationController@resend')->name('verificationapi.resend');
 
