@@ -35,7 +35,7 @@ Route::middleware('auth:api')->group(function () {
 
 	Route::group(['prefix' => 'payments'], function() {
 		Route::get('/activity', 'PaymentController@index');
-		Route::get('/invoice/{id}', 'PaymentController@invoice');
+		// Route::get('/invoice/{id}', 'PaymentController@invoice');
 	});
 
 	Route::group(['prefix' => 'user'],function(){
@@ -98,6 +98,11 @@ Route::middleware('auth:api')->group(function () {
 
 	Route::get('email/resend', 'API\VerificationController@resend')->name('verificationapi.resend');
 });
+
+	Route::group(['prefix' => 'payments'], function() {
+		// Route::get('/activity', 'PaymentController@index');
+		Route::get('/invoice/{id}', 'PaymentController@invoice');
+	});
 
 Route::get('/referral-points', 'ReferralController@points');
 // Route::group(['prefix' => 'credits'], function() {

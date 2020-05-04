@@ -143,7 +143,7 @@ class Helper {
     $cars = $car->where('added_by', '=', $user_id);
 
     if ( $options == 'count') {
-      return $car->count();
+      return $cars->count();
     }
 
     if ($options == 'active') {

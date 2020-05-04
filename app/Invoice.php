@@ -14,8 +14,13 @@ class Invoice extends Model
     public function plan(){
     	return $this->hasOne('App\Plan', 'id', 'plan_id');
     }
-    // public function payment() {
-    // 	return $this->hasOne('App\Payment', 'id', 'payment_id');
-    // }
+
+    public function payment() {
+    	return $this->belongsTo('App\Payment', 'id', 'invoice_id');
+    }
+
+    public function line() {
+    	return $this->hasMany('App\InvoiceLine', 'invoice_id', 'id');
+    }
 }
  

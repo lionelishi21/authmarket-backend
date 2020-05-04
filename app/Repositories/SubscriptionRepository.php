@@ -14,7 +14,6 @@ use App\VehicleMake;
 class SubscriptionRepository {
 	
 	protected $model;
-
 	public function __construct(Subscription $subscription){
 		$this->model = $subscription;
 	}
@@ -25,6 +24,7 @@ class SubscriptionRepository {
 	 * @return [type]        [description]
 	 */
 	public function subscribe( array $array) {
+
 
 		$plan = $array['car'];
 		$payment = $array['payments'];
@@ -51,6 +51,7 @@ class SubscriptionRepository {
 				$title = VehicleMake::find($make_id)->name;
 
 				$line = new InvoiceLine;
+				$line->invoice_id = $invoice->id;
 				$line->title = $title;
 				$line->unitPrice = $planDetails['cost'];
 				$line->save();

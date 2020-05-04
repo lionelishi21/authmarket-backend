@@ -574,8 +574,8 @@ class Cars extends Helper {
 
 		$responses = array(
 			'cars' => $response,
-			 count => $car_count,
-			 active => $car_active,
+			 'count' => $car_count,
+			 'active' => $car_active,
 		);
 		
 		return $responses;

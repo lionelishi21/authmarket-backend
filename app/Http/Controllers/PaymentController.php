@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Repositories\PaymentRepository;
 use Carbon\Carbon;
 use App\Payment;
 use App\Plan;
@@ -12,11 +13,17 @@ class PaymentController extends Controller {
     
     
     private $_api_context;
+    protected $payment;
 
     public function __construct() {
-
+        $this->payment = new PaymentRepository;
     }
 
+    /**
+     * [index description]
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
     public function index(Request $request) {
        
         $user = $request->user();
@@ -48,7 +55,22 @@ class PaymentController extends Controller {
         return Redirect::route('paywithpaypal');
     }
 
+    /**
+     * [invoice description]
+     * @param  [type] $invoice_id [description]
+     * @return [type]             [description]
+     */
+    public function invoice(Request $request, $invoice_id ) {
 
+        $response = $this->payment->details( $invoice_id );
+        return Response::json($response);
+    }
+
+    /**
+     * [payWithpaypal description]
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
     public function payWithpaypal(Request $request){
 
         $payer = new Payer();
