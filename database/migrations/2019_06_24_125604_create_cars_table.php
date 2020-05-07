@@ -26,8 +26,8 @@ class CreateCarsTable extends Migration
             $table->string('district')->nullable();
             $table->string('description')->default('N\A');
             $table->string('milage')->default('N\A');
-            $table->string('interior_color')->default('N\A');
-            $table->string('exterior_color')->default('N\A');
+            $table->string('interior_color')->nullable();
+            $table->string('exterior_color')->nullable();
             $table->string('doors')->nullable();
             $table->string('drive_type')->nullable();
             $table->string('fuel_type')->nullable();

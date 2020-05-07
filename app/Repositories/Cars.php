@@ -3,6 +3,7 @@ namespace App\Repositories;
 
 use App\CarFeatureEntertainment;
 use App\Repositories\Credit;
+use Illuminate\Support\Facades\Validator;
 use App\CarFeatureSafety;
 use App\CarFeatureOther;
 use App\CarFeatureSeat;
@@ -51,6 +52,8 @@ class Cars extends Helper {
 	public function create( $attributes, $user_id ) {
 
 
+	
+
 		$main = json_decode($attributes['main']);
 		$main->added_by = $user_id;
 		$batch_id = uniqid();
@@ -62,6 +65,7 @@ class Cars extends Helper {
 
 		// Convet object to array
 		$details = (array) $main;
+
 		$created = Car::create( $details );
 		$car_id = $created->id;
 
