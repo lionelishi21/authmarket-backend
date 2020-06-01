@@ -16,11 +16,12 @@ use Illuminate\Http\Request;
 /** Application and **/
 Route::middleware('auth:api')->group(function () {
 
-
+	Route::get('/', 'API\CreditsController@index');
+	
 	Route::group(['prefix' => 'credits'], function() {
+		Route::get('/start', 'API\CreditsController@useCredit');
 		Route::post('/create', 'API\SubscriptionController@purchaseCredit');
 		Route::get('/', 'API\CreditsController@index');
-		Route::get('/start', 'API\CreditsController@useCredit');
 	});
 
 
@@ -76,6 +77,7 @@ Route::middleware('auth:api')->group(function () {
 		/* active cars and inactive */
 		Route::get('/inactive', 'CarsController@getUserInactiveCars');
 		Route::get('/active', 'CarsController@getUserActiveCars');
+		Route::get('/rotate/image/{id}', 'CarsController@rotate');
 	});
 
 
@@ -105,6 +107,7 @@ Route::middleware('auth:api')->group(function () {
 	});
 
 Route::get('/referral-points', 'ReferralController@points');
+
 // Route::group(['prefix' => 'credits'], function() {
 // 	Route::get('/create', 'API\SubscriptionController@purchaseCredit');
 // 	Route::get('/', 'API\CreditsController@index');

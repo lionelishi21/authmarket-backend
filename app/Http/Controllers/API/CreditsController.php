@@ -24,11 +24,9 @@ class CreditsController extends Controller
    public function index(Request $request) {
 
    		$user = $request->user();
-		
 		$credits = $this->credits->index($user->id);
 		
 		return $credits;
-
    }
 
    /**
@@ -41,9 +39,7 @@ class CreditsController extends Controller
    		$user = $request->user();
 
    		if ( $user ) {
-   			
    			$response = $this->credits->useUserCredit($user->id, $request->car_id);
-   			
    			return $response;
    		}
    }	 

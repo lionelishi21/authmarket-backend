@@ -205,6 +205,7 @@ class Cars extends Helper {
 			'district' => $carDetails->district,
 			'parish' => $carDetails->parish,
 			'steering' => $carDetails->steering,
+			'sold' => $carDetails->isSold,
 			'price' => $carDetails->price,
 			'profile' => $this->getUserProfileByUserId($carDetails->added_by)
 		);
@@ -220,14 +221,13 @@ class Cars extends Helper {
 	 * @param [type] $params [description]
 	 */
 	public function UpdateCarById($params, $carId) {
+
 		$response = array();
-		if (isset ($carId) ) {
-			$car = Car::where('id', '=', $carId);
-			$update = $car->update($params);
-			if ($update) {
-				$response = array('message' => 'Car details has been succesfully updatedsss');
-				return $response;
-			}
+		$car = Car::where('batch_id', '=', $carId)->first();
+		$update = $car->update($params);
+		if ($update) {
+			$response = array('message' => 'Car details has been succesfully updatedsss');
+			return $params;
 		}
 		return $response;
 	}
@@ -312,6 +312,7 @@ class Cars extends Helper {
 				'district' => $car->district,
 				'parish' => $car->parish,
 				'milage' => $car->milage,
+				'sold' => $car->isSold,
 				'steering' => $car->steering,
 				'image' => $this->getCarImage($car->id),
 				'images' => $car->images,
@@ -363,6 +364,7 @@ class Cars extends Helper {
 				'fuel_type' => $car->fuel_type,
 				'parish' => $car->parish,
 				'milage' => $car->milage,
+				'sold' => $carDetails->isSold,
 				'steering' => $car->steering,
 				'image' => $this->getCarImage($car->id),
 				'images' => $car->images,
@@ -464,6 +466,7 @@ class Cars extends Helper {
 				'steering' => $car->steering,
 				'image' => $this->getCarImage($car->id),
 				'images' => $car->images,
+				 'sold' => $car->isSold,
 				'features' => $car->feature,
 				'safety' => $car->safety,
 				'entertainment' => $car->entertainment,
@@ -760,7 +763,8 @@ class Cars extends Helper {
 				'pageviews' => $car->pageviews, 
 				'interior_color' => $car->interior_color,
 				'exterior_color' => $car->exterior_color,
-				'price' => $car->price
+				'price' => $car->price,
+				'sold' => $carDetails->isSold,
   			);
   		}
 
@@ -803,6 +807,7 @@ class Cars extends Helper {
 				'pageviews' => $car->pageviews, 
 				'interior_color' => $car->interior_color,
 				'exterior_color' => $car->exterior_color,
+				'sold' => $car->isSold,
 				'price' => $car->price
   			);
   		}
@@ -828,6 +833,46 @@ class Cars extends Helper {
 		}
   			
     //  	return $response; 
+  }
+
+  /**
+   * [RotateImageByImage description]
+   * @param [type] $image_id [description]
+   */
+  public function RotateImageByImage( $image_id ) {
+
+  		$image = CarImage::find($image_id);
+  	    $this->updateImage($image_id, $image->image);
+  }
+
+  /**
+   * Update Car Images
+   * @param  [type] $image_id [description]
+   * @param  [type] $image    [description]
+   * @return [type]           [description]
+   */
+  public function updateImage ( $image_id , $image) {
+
+  		$thumbnailImage = Image::make(public_path().'/storage/images/'.$image)->rotate(90)->save();
+  		$thumbnailImage = Image::make(public_path().'/storage/thumbnail/'.$image)->rotate(90)->save();
+  }
+
+  /**
+   * [sold description]
+   * @param  [type] $batchId [description]
+   * @return [type]          [description]
+   */
+  public function sold($batchId) {
+	  	$car = $this->cars->where('batch_id', '=', $batchId)->first();
+	  	$car->isSold = 1;
+	  	$car->save();
+
+	  	if ( $car->save()) {
+	  		$response = [
+	  			'mes' => 'Success'
+	  		];
+	  		return $response;
+	  	}
   }
 
 }

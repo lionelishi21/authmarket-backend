@@ -47,17 +47,70 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $request->validate([
+
+
+
+       if ( $request->type == 2 ) {
+
+          $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'company' => 'required|min:3',
             'password' => 'required|string|min:6',
-        ]);
+          ]);
 
-       $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        }  else {
+
+             $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6',
+            ]);
+        }
+
+
+       
+
+
+        // Auto Dealer Sign up
+        if ($request->type == 2) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'role_id' => 2,
+                'company' => $request->company,
+                'address' => $request->address,
+                'city' => $request->parish,
+                'district' => $request->location,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+
+        if ($request->type == 1) {
+             $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+
+        if ($request->type == 3) {
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'role_id' => 3,
+                'address' => $request->address,
+                'city' => $request->parish,
+                'district' => $request->location,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+       
        
         $user->sendApiEmailVerificationNotification();
         

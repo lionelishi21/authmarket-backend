@@ -105,9 +105,7 @@ class CarsController extends Controller
      */
     public function  update(Request $request, $car_id) {
 
-        $cars = new Cars;
-    	$data = $request->all();
-    	$response = $cars->UpdateCarById($data, $car_id);
+    	$response = $this->carservice->update($request, $car_id);
     	return Response::json($response);
     }
 
@@ -221,5 +219,14 @@ class CarsController extends Controller
         $cars = $this->carservice->get_inactive_cars($user_id);
         return Response::json($cars);
 
+    }
+
+    public function rotate(Request $request, $id) {
+
+        $user = $request->user();
+        if ( $user ) {
+           $rotate = $this->carservice->rotate_image($id);
+           return $rotate;
+        }
     }
 }

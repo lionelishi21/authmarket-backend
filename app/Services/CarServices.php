@@ -68,7 +68,7 @@ class CarServices {
 	 */
 	public function update (Request $request, $id) {
 		$attributes = $request->all();
-		return $this->carrepository->update($id, $attributes);
+		return $this->carrepository->UpdateCarById($attributes, $id);
 	}
 
 	/**
@@ -152,6 +152,24 @@ class CarServices {
 	 */
 	public function get_active_cars( $user) {
 		return $this->carrepository->GetUserActiveCarByUserId( $user);
+	}
+
+	/**
+	 * [rotate_image description]
+	 * @param  [type] $id [description]
+	 * @return [type]     [description]
+	 */
+	public function rotate_image($id) {
+		return $this->carrepository->RotateImageByImage($id);
+	}
+
+	/**
+	 * [sold_vechile description]
+	 * @param  [type] $id [description]
+	 * @return [type]     [description]
+	 */
+	public function sold_vechile($id) {
+		return $this->carrepository->sold($id);
 	}
 }
 

@@ -13,6 +13,7 @@ use App\Notifications\VerifyApiEmail;
 class User extends Authenticatable implements MustVerifyEmail
 {
      use HasApiTokens, Notifiable, Uuids;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name', 'email', 'password',
     ];
+
 
     /**
      * The attributes that should be hidden for arrays.
@@ -39,6 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
 
     public function sendApiEmailVerificationNotification(){
         $this->notify(new VerifyApiEmail); // my notification

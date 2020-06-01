@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PlanTableSeeder::class);
         $this->call(BodystyleTableSeeder::class);
         $this->call(ParishTableSeeder::class);
+        $this->call(RoleTableSeeder::class);
     }
 }

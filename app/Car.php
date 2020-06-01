@@ -13,7 +13,7 @@ class Car extends Model
         'model_id', 'make_id', 'year_id', 'vehicle_id', 'added_by', 'batch_id',
         'price', 'color', 'steering', 'parish', 'district', 'description', 
         'milage', 'interior_color', 'exterior_color', 'doors', 'drive_type',
-        'fuel_type', 'negotiable'
+        'fuel_type', 'negotiable', 'body_type'
     ];
 
     // protected static $logAttributes = [   'model.name', 'make.name', 'year.year', 'user.name', 'batch_id',

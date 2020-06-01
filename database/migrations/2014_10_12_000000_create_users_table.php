@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable();
-            $table->integer('isDealer')->default(0);
+            $table->integer('role_id')->default(1);
             $table->string('company')->nullable();
             $table->string('address')->nullable();
             $table->string('district')->nullable();
