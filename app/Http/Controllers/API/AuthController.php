@@ -49,6 +49,7 @@ class AuthController extends Controller
     {
 
 
+       return $request;
 
        if ( $request->type == 2 ) {
 
@@ -70,8 +71,6 @@ class AuthController extends Controller
 
 
        
-
-
         // Auto Dealer Sign up
         if ($request->type == 2) {
             $user = User::create([

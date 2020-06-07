@@ -4,6 +4,7 @@ namespace App\Repositories;
 use App\Credit;
 use App\Subscription;
 use Carbon\Carbon;
+use App\Plan;
 use App\Repositories\Referrals;
 
 class Credits {
@@ -114,25 +115,73 @@ class Credits {
      * @return [type] [description]
      * **************************************************************
      */
-    public function purchaseCredit($user_id, $amount) {
+    public function updatePlans($user_id, $amount) {
 
         $type = 2;
-        $creditAmount = $amount;
-  
-        for ($x = 0; $x < $creditAmount; $x++) {
-            $credit = new Credit;
-            $credit->type_id = $type;
-            $credit->user_id = $user_id;
-            $credit->save();
+        
+        if ($amount < 5 ) {
+
+        	$checkDealerPlan = $this->checkPlan(3);
+
+        	$checkPremiumPlan = $this->checkPlan(4);
+
+        	if ($checkDealerPlan OR $checkPremiumPlan) {
+
+        	} else {
+        		
+        		$updateuser = New User;
+
+	        	$updateuser->plan_id = 2;
+	        	$updateuser->role_id = 2;
+
+	        	$updateuser->save();
+        	}
+        	
+        }
+
+
+        if ($amount >= 5 AND $amount < 10) {
+
+        	$checkPremiumPlan = $this->checkPlan(4);
+
+        	if ($checkPremiumPlan ) {
+
+        	} else {
+        		$updateuser = New User;
+	        	$updateuser->plan_id = 3;
+	        	$updateuser->role_id = 2;
+	        	$updateuser->save();
+        	}
+        
+        }
+
+
+        if ($amount >= 10 ) {
+
+        	$updateuser = new User;
+
+        	$updateuser->plan_id = 4;
+        	$updateuser->role_id = 2;
+        	
+        	$updateuser->save();
         }
 
         $response = [
             'msg' => 'successfully save user credit(s)',
         ];
 
-        return response()->json( $response, 200);
+        return $response;
     }
 
+
+    public function checkPlan ( $plan_id ) {
+
+    	$plan = Plan::find($plan_id);
+    	if ($plan) {
+    		return true;
+    	}
+    	return false;
+    }
 
 }
  

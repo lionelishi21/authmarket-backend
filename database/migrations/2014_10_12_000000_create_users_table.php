@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->string('address')->nullable();
             $table->string('district')->nullable();
             $table->string('city')->nullable();
+            $table->integer('plan_id')->default(1);
             $table->text('about')->nullable();
             $table->rememberToken();
             $table->timestamps();

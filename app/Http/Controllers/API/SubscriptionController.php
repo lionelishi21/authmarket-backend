@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\SubscriptionService;
+use App\Repositories\Credits;
 use Response;
 use App\Credit;
 use App\Invoice;
 use App\InvoiceLine;
 use App\Payment;
+use App\User;
 
 class SubscriptionController extends Controller
 {
@@ -18,6 +20,7 @@ class SubscriptionController extends Controller
 
     public function __construct(SubscriptionService $subscriptions){
     	$this->subscriptions = $subscriptions;
+        
     }
 
 
@@ -54,6 +57,7 @@ class SubscriptionController extends Controller
         $user = $request->user();
         $user_id = $user->id; 
 
+        $planstatus = $this->UpdateUserPlan($user->plan_id, $user_id, $creditAmount);                                                                                                                                                                            
         for ($x = 0; $x < $creditAmount; $x++) {
             $credit = new Credit;
             $credit->type_id = $type;
@@ -89,13 +93,42 @@ class SubscriptionController extends Controller
 
         $response = [
             'msg' => 'successfully save user credit(s)',
+            'planupdate' => $planstatus,
             'status' => $credit->save()
         ];
 
         return response()->json( $response, 200);
     }
 
+    /**
+     * [UpdateUserPlan description]
+     */
+    public function UpdateUserPlan($attributes, $userId, $amount) {
 
+        $planId = $attributes['plan_id'];
+
+         $plan = $planId;
+         if ($amount < 5 AND $planId < 2) {
+            $plan = 1;
+         }
+
+         if ($amount >= 5 AND $amount < 10 AND $planId < 2) {
+            $plan = 2;
+          }
+
+          if ($amount >= 10 AND $planId < 3) {
+             $plan = 3;
+          }
+
+           $user = User::find($userId);
+           $user->plan_id = $plan;
+           $user->role_id = 2;
+           $user->save();
+
+          if ( $user->save()) {
+            return true;
+          }
+    }
 
 
     /**

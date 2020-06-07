@@ -66,6 +66,7 @@ Route::middleware('auth:api')->group(function () {
 	});
 
 	Route::group(['prefix' => 'cars'],function(){
+		
 		Route::get('/car-details/{id}', 'CarsController@edit');
 		Route::get('/user', 'CarsController@show');
 		Route::post('/edit/{id}', 'CarsController@update');
