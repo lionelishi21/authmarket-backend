@@ -358,6 +358,20 @@ class ProfileRepository extends Helper{
         }
     }
 
+    /**
+     * [getAutoRepDetailsById description]
+     * @param  [type] $uuid [description]
+     * @return [type]       [description]
+     */
+    public function getAutoRepDetailsById($uuid) {
+
+    	$userId = User::where('username', '=', $uuid)->first()->id;
+    	$cars = Car::where('added_by', '=', $userId)->with(['images', 'year', 'make'])->get();
+
+    	if ( $cars ) {
+    		return $cars;
+    	}
+    }
 }
 
 

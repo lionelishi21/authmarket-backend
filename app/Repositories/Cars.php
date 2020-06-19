@@ -364,7 +364,7 @@ class Cars extends Helper {
 				'fuel_type' => $car->fuel_type,
 				'parish' => $car->parish,
 				'milage' => $car->milage,
-				'sold' => $carDetails->isSold,
+				'sold' => $car->isSold,
 				'steering' => $car->steering,
 				'image' => $this->getCarImage($car->id),
 				'images' => $car->images,
@@ -532,11 +532,18 @@ class Cars extends Helper {
 	public function saveImages($images, $car_id, $user_id) {
 
 		$originalImage = $images;
-	  
+	  	
+	  	$waterMarkUrl = public_path().'/images/watermark.png';
+
 		$thumbnailImage = Image::make($originalImage);
+
+		$thumbnailImage->insert($waterMarkUrl, 'center');
+
 		$thumbnailPath = public_path().'/storage/thumbnail/';
 		$originalPath  = public_path().'/storage/images/';
+
 		$thumbnailImage->save($originalPath.time().$originalImage->getClientOriginalName());
+
 		$thumbnailImage->resize(480,320);
 		$thumbnailImage->save($thumbnailPath.time().$originalImage->getClientOriginalName()); 
 
@@ -547,6 +554,7 @@ class Cars extends Helper {
 
 		$imagemodel->save();
 	}
+
 
 
 	public function getUserDashBoardWidgets($user) {
@@ -764,7 +772,7 @@ class Cars extends Helper {
 				'interior_color' => $car->interior_color,
 				'exterior_color' => $car->exterior_color,
 				'price' => $car->price,
-				'sold' => $carDetails->isSold,
+				'sold' => $car->isSold,
   			);
   		}
 

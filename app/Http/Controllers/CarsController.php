@@ -6,6 +6,7 @@ use App\Services\CarService;
 use Illuminate\Http\Request;
 use App\Repositories\Cars;
 use App\Services\CarServices;
+use App\Repositories\Credits;
 use Response;
 use App\Car;
 
@@ -221,6 +222,12 @@ class CarsController extends Controller
 
     }
 
+    /**
+     * This funciton rotate car image while editing vehiclie
+     * @param  Request $request [description]
+     * @param  [type]  $id      [description]
+     * @return [type]           [description]
+     */
     public function rotate(Request $request, $id) {
 
         $user = $request->user();
@@ -229,4 +236,42 @@ class CarsController extends Controller
            return $rotate;
         }
     }
+
+    /**
+     * ************************************
+     * This function mark vehicle has save 
+     * @param  [type] $batch_id [description]
+     * @return [type]           [description]
+     */
+    public function sold($batch_id) {
+       
+        $car = Cars::where('batch_id', '=', $batch_id)->first();
+        $car->isSold = 1;
+        $car->save();
+
+        if ( $car->save() ) {
+            return $response = array('message' => 'Vehicle is now sold');
+        }
+    }
+
+    /**
+     * This function is use activate inactive cars
+     * @param  [type] $id [description]
+     * @return [type]     [description]
+     */
+    public function activateCredit(Request $request, $car_id) {
+
+        $userId = $request->user()->id;
+        $credits = new Credits;
+        $applyACredit = $credits->useUserCredit($userId, $car_id);
+
+        $response = array(
+            'message' => 'Vehicle is now active for 15 daus',
+            'status' => true,
+        );
+
+        return $response;
+    } 
 }
+
+

@@ -90,5 +90,14 @@ class UserService {
     	return $this->model->getAllBodyStyle( $user_id );
     }
 
+    /**
+     * This function get auto rep information by id
+     * @param  [type] $uuid [description]
+     * @return [type]       [description]
+     */
+    public function get_auto_rep($uuid) {
+        return $this->model->getAutoRepDetailsById($uuid);
+    }
+
 }
 ?>

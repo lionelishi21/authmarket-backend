@@ -27,6 +27,10 @@ class Car extends Model
       return $this->hasOne('App\User', 'added_by');
     }
 
+    public function user() {
+       return $this->belongsTo('App\User', 'added_by');
+    }
+
     public function images() {
     	  return $this->hasMany('App\CarImage', 'car_id');
     }

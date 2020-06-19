@@ -75,4 +75,13 @@ class UserController extends Controller
         }
         return Response::json($parishes);
     }
+
+    /**
+     * [AutoRep description]
+     * @param [type] $id [description]
+     */
+    public function AutoRep($id) {
+        $autorep = $this->model->get_auto_rep($id);
+        return Response::json( $autorep);
+    }
 }

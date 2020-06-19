@@ -48,29 +48,6 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-
-       return $request;
-
-       if ( $request->type == 2 ) {
-
-          $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'company' => 'required|min:3',
-            'password' => 'required|string|min:6',
-          ]);
-
-        }  else {
-
-             $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:6',
-            ]);
-        }
-
-
-       
         // Auto Dealer Sign up
         if ($request->type == 2) {
             $user = User::create([
@@ -97,9 +74,9 @@ class AuthController extends Controller
 
 
         if ($request->type == 3) {
-
             $user = User::create([
                 'name' => $request->name,
+                'username' => $request->username,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'role_id' => 3,

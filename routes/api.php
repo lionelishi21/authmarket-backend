@@ -79,6 +79,10 @@ Route::middleware('auth:api')->group(function () {
 		Route::get('/inactive', 'CarsController@getUserInactiveCars');
 		Route::get('/active', 'CarsController@getUserActiveCars');
 		Route::get('/rotate/image/{id}', 'CarsController@rotate');
+		Route::get('/sold/{id}', 'CarsController@sold');
+		
+		Route::get('/autorep/{id}', 'UserController@AutoRep');
+		Route::get('/activate-credit/{id}', 'CarsController@activateCredit');
 	});
 
 
@@ -108,7 +112,7 @@ Route::middleware('auth:api')->group(function () {
 	});
 
 Route::get('/referral-points', 'ReferralController@points');
-
+Route::get('/autorep/{id}', 'UserController@AutoRep');
 // Route::group(['prefix' => 'credits'], function() {
 // 	Route::get('/create', 'API\SubscriptionController@purchaseCredit');
 // 	Route::get('/', 'API\CreditsController@index');
