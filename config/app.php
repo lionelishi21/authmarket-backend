@@ -171,6 +171,7 @@ return [
          */
         Gerardojbaez\Vehicle\VehicleServiceProvider::class,
         Illuminate\Auth\AuthServiceProvider::class,
+            Weidner\Goutte\GoutteServiceProvider::class,
         
         /*
          * Application Service Providers...
@@ -238,6 +239,7 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'PayPal' => Srmklive\PayPal\Facades\PayPal::class,
         'Bitly' => Shivella\Bitly\Facade\Bitly::class,
+        'Goutte' => Weidner\Goutte\GoutteFacade::class, // [2] It will register as an alias for the Goutte facade
 
     ],
 

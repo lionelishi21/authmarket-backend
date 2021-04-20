@@ -245,7 +245,7 @@ class CarsController extends Controller
      */
     public function sold($batch_id) {
        
-        $car = Cars::where('batch_id', '=', $batch_id)->first();
+        $car = Car::where('batch_id', '=', $batch_id)->first();
         $car->isSold = 1;
         $car->save();
 
@@ -266,7 +266,7 @@ class CarsController extends Controller
         $applyACredit = $credits->useUserCredit($userId, $car_id);
 
         $response = array(
-            'message' => 'Vehicle is now active for 15 daus',
+            'message' => 'Vehicle is now active for 15 days',
             'status' => true,
         );
 

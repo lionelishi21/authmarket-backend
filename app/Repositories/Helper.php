@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Profile;
 use App\User;
 use App\Car;
+use Goutte;
 
 class Helper {
 
@@ -184,6 +185,44 @@ class Helper {
     
   }
 
+  /**
+   * [scrapeJacars description]
+   * @param  array  $filter [description]
+   * @return [type]         [description]
+   */
+  public function scrapeJacars(array $filter) {
+
+      $myarray = array();
+      
+      $make = strtolower($filter['make']);
+      $model = strtolower($filter['model']);
+
+      $crawler = Goutte::request('GET', 'https://www.jacars.net/cars/'.$make.'/'.$model );
+      $response = $crawler->filter('.announcement-container ')->each(function ($node) use (&$myarray, $crawler) {
+        
+          $image = $node->filter('.list-announcement-block-img img')->getNode(0)->getAttribute('src');
+          
+          $title =  trim(preg_replace('/\s\s+/', ' ', 
+                  $node->filter('.announcement-block-text .announcement-block__title')
+                ->getNode(0)
+                ->textContent));
+
+          $prices = trim(preg_replace('/\s\s+/', ' ', 
+                $node->filter('.announcement-block-link .announcement-block__price')
+                ->getNode(0)
+                ->textContent));
+
+          $myarray[] = array( 
+            'title' => $title, 
+            'price' => $prices,
+            'image' => $image, 
+           
+          );
+      });
+
+      return $myarray;
+
+  }
 }
 ?>
 

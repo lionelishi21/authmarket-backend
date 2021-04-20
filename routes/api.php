@@ -141,6 +141,9 @@ Route::get('parishes', 'UserController@Parish');
 Route::group(['prefix' => 'cars'],function(){
 	Route::get('/details/{id}', 'CarsController@details');
 	Route::post('/filter', 'CarsController@filterCars');
+	
+	Route::get('/scrape','CarComparisonController@index');
+	Route::post('/compare-cars', 'CarComparisonController@compareCars');
 });
 # ========================================================
 
@@ -192,5 +195,8 @@ Route::get('/viewcounts/{id}', 'CarsController@countPageviews');
 Route::get('/hot-cars', 'CarsController@mostViewCars');
 
 
+Route::group(['prefix' => 'autoreps'], function(){
+	Route::get('/', 'AutoRepController@index');
+});
 
 // Route::middleware('auth:api')->get('/profile', 'Api\ProfileController@getUser');

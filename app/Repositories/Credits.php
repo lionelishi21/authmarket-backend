@@ -68,36 +68,34 @@ class Credits {
 		->where('active', '=', 0)
 		->first();
 
-		if ( $credit ) {
+
+		if ( isset ( $credit) ) {
+
 
 			$start_time = $start_time = Carbon::now();
 			$end_time = Carbon::now()->addDays(15);
 
-			$subscribe = new Subscription;
+			$subscribe = Subscription::where('car_id', '=', $car_id)->first();
 
-			$subscribe->car_id = $car_id;
+			if (! isset($subscribe)) {
+				$subscribe = new Subscription;
+			} 
 
+	    	$subscribe->car_id = $car_id;
 			$subscribe->user_id = $user_id;
-
 			$subscribe->credit_id = $user_id;
-
 			$subscribe->start_time = $start_time;
-
 			$subscribe->end_time = $end_time;
-
-			$subscribe->save();
+			$save = $subscribe->save();
 
 			if ($subscribe->save()) {
 				
 				$updateCredit = $this->credit->find($credit->id);
-				
 				$updateCredit->active = 1;
-				
 				$updateCredit->save();
 
 				$ref = new Referrals;
 				$ref->saveReferralPoints($user_id, $user_id );
-
 				$response = [
 					'mes' => 'You plan has started'
 				];

@@ -3,6 +3,7 @@ namespace App\Repositories;
 
 use App\CarFeatureEntertainment;
 use App\Repositories\Credit;
+use App\Repositories\Scraper;
 use Illuminate\Support\Facades\Validator;
 use App\CarFeatureSafety;
 use App\CarFeatureOther;
@@ -51,9 +52,6 @@ class Cars extends Helper {
 	 */
 	public function create( $attributes, $user_id ) {
 
-
-	
-
 		$main = json_decode($attributes['main']);
 		$main->added_by = $user_id;
 		$batch_id = uniqid();
@@ -78,8 +76,6 @@ class Cars extends Helper {
 		$car_others = $attributes['car_others'];
 		$car_safety = $attributes['car_safety'];
 		$car_entertainment  = $attributes['car_entertainment'];
-
-
 		// $profile = $attributes['profile'];
 
 		if ( isset($car_features) ) {
@@ -281,6 +277,27 @@ class Cars extends Helper {
 		return $response;
 	}
 
+
+	/**
+	 * HTIS FUNCTION COMAPARE CARE RESULT WITH OTHER SITES
+	 * @param  [type] $filter [description]
+	 * @return [type]         [description]
+	 */
+	public function compare($filter) {
+
+		$scraper = new Scraper;
+		$comparison = $scraper->fetchJaCars($filter);
+
+		$cars = $this->all($filter);
+		
+		$response = array(
+			'cars' => $cars,
+			'comparison' => $comparison
+		);
+
+		return $response;
+	}
+
 	/**
 	 * This function get user listing by id
 	 * @param  [type] $filter  [description]
@@ -392,13 +409,13 @@ class Cars extends Helper {
 		$make ='';	
 
 		if ( $attributes['parish'] ) {
-			$listings = $listings->where('parish', '=',$attributes['parish'] );
+			$listings = $listings->where('parish', '=', $attributes['parish'] );
 		}
 
 		if ( $attributes['make'] ) {
 			$make_count = count($attributes['make']);
 			for ($i = 0; $i < $make_count; $i++) {
-				$listings = $listings->orWhere('make_id', '=', $attributes['make'][$i]);
+				$listings = $listings->where('make_id', '=', $attributes['make'][$i]);
 			}
 		}
 		
@@ -421,6 +438,13 @@ class Cars extends Helper {
 		$listings = $listings->get();
 
 		foreach( $listings as $car) {
+
+
+			// $isSubscribe = $this->checkIfSubscribe($car->id)
+			
+			// if ($isSubscribe) {
+			// 	continue;
+			// }
 
 			if ( isset( $attributes['minYear']) ) {
 				$carYear = $this->getYearById($car->year_id);
@@ -475,6 +499,73 @@ class Cars extends Helper {
 			);
 		}
 		return $response;
+	}
+
+	/**
+	 * THIS FUNCTION FILTER COMPARE CAR RESULTS
+	 * @param  [type] $attributes [description]
+	 * @return [type]             [description]
+	 */
+	public function filterComapreCars( $attributes ) {
+
+		$response = array();
+		$listings = $this->cars->with(['year', 'make']);
+
+		if ( isset($attributes['make']) ) {
+			$listings = $listings->where('make_id', '=', $attributes['make']);
+		}
+
+		if ( isset($attributes['model'])) {
+			$listings = $listings->where('model_id', '=', $attributes['model']);
+		}
+
+		$listings = $listings->get();
+
+		foreach($listings as $car ) {
+			$response[] = $this->template($car);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * this function get car template. query builder i suppose
+	 * @param  [type] $car [description]
+	 * @return [type]      [description]
+	 */
+	public function template( $car ) {
+
+		   return array(
+				'id' => $car->id,
+				'subscribe' => $this->checkIfSubscribe($car->id),
+				'batch_id' => $car->batch_id,
+				'make_id' => $car->make_id,
+				'pageviews' => $car->pageviews,
+				'make' => $this->getMakeById($car->make_id),
+				'model' => $this->getModelById($car->model_id),
+				'year' => $this->getYearById($car->year_id),
+				'vehicle' => $this->getVehicleById($car->make_id, $car->model_id, $car->year_id),
+				'profile' => $this->getUserProfileByUserId($car->added_by),
+				'location' => $car->parsih,
+				'price' => $car->price,
+				'interior_color' => $car->interior_color,
+				'exterior_color' => $car->exterior_color,
+				'desc' => $car->description,
+				'location' => $car->parish.', '. $car->district,
+				'district' => $car->district,
+				'fuel_type' => $car->fuel_type,
+				'parish' => $car->parish,
+				'milage' => $car->milage,
+				'steering' => $car->steering,
+				'image' => $this->getCarImage($car->id),
+				'images' => $car->images,
+				 'sold' => $car->isSold,
+				'features' => $car->feature,
+				'safety' => $car->safety,
+				'entertainment' => $car->entertainment,
+				'other' => $car->other,
+				'seat' => $car->seat
+			);
 	}
 
 	/**
@@ -682,7 +773,8 @@ class Cars extends Helper {
                 'model' => $this->getModelById($usercar->model_id),
                 'vehicle' => $this->getVehicleById($usercar->make_id, $usercar->model_id, $usercar->year_id),
                 'price' => $usercar->price,
-                'image' => $this->getCarImage($usercar->id)
+                'image' => $this->getCarImage($usercar->id),
+                'isSold' => $usercar->isSold
             );     
         }
         return $response;
@@ -871,6 +963,7 @@ class Cars extends Helper {
    * @return [type]          [description]
    */
   public function sold($batchId) {
+	  
 	  	$car = $this->cars->where('batch_id', '=', $batchId)->first();
 	  	$car->isSold = 1;
 	  	$car->save();
@@ -881,6 +974,36 @@ class Cars extends Helper {
 	  		];
 	  		return $response;
 	  	}
+  }
+
+  /**
+   * [setMainImage description]
+   * @param [type] $imageId [description]
+   * @param [type] $carId   [description]
+   */
+  public function setMainImage($imageId, $carId) {
+
+  		$images = CarImage::where('car_id', '=', $carId)->get();
+  		foreach($images as $image) {
+
+  			$image = CarImage::find($image->id);
+  			$image->main = 0;
+  			$image->save();
+  		}
+
+  		$carimage = CarImage::find($imageId);
+	  	$carimage->main = 1;
+	  	$carimage->save();
+  	}
+
+
+  /**
+   * [jacars description]
+   * @param  array  $filter [description]
+   * @return [type]         [description]
+   */
+  public function jacars(array $filter) {
+  	return $response = $this->scrapeJacars($filter);
   }
 
 }

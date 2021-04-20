@@ -4,7 +4,8 @@ namespace App\Services;
 use App\Repositories\Cars;
 use Illuminate\Http\Request;
 use App\Repositories\MakeRepository;
-
+use App\VehicleMake;
+use App\VehicleModel;
 class CarServices {
 
 
@@ -35,8 +36,20 @@ class CarServices {
 	 * @return [type]           [description]
 	 */
 	public function filter(Request $request) {
+		
 		$attributes = $request->all();
 		return $this->carrepository->filterCarsByMake($request);
+	}
+
+	/**
+	 * this service is for filter compare car results
+	 * @param  Request $request [description]
+	 * @return [type]           [description]
+	 */
+	public function filterCompare( Request $request) {
+	
+		$attributes = $request->all();
+		return $this->carrepository->filterComapreCars($attributes);
 	}
 
 	/**
@@ -170,6 +183,35 @@ class CarServices {
 	 */
 	public function sold_vechile($id) {
 		return $this->carrepository->sold($id);
+	}
+
+	public function set_main_image(array $attributes) {
+		return $this->carrepository->setMainImage($attributes);
+	}
+	
+
+	/**
+	 * THIS FUNCTION GET ALL CARS FROM JACARS WEBSITE
+	 * @param  [type] $attributes [description]
+	 * @return [type]             [description]
+	 */
+	public function compare_cars( array $attributes ) {
+
+		 $filter = array();
+
+		 $vehicleMake = VehicleMake::where('id', '=', $attributes['make'])->first();
+		 $vehicleModel = VehicleModel::where('id', '=', $attributes['model'])->first();
+
+		if ( $vehicleMake ) {
+			$filter = array( 'make' => $vehicleMake->name );
+		}
+
+
+		if ($vehicleModel) {
+			$filter = array( 'make' => $vehicleMake->name, 'model' => $vehicleModel->name );
+		}
+
+		return $this->carrepository->jacars($filter);
 	}
 }
 
