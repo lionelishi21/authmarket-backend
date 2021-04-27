@@ -22,7 +22,6 @@ pipelines:
           - npm install
           - npm run prod
           - ln -f -s .env.pipelines .env
-          - php artisan key:generate
           - php artisan migrate
           - php artisan serve &
           - sleep 5
