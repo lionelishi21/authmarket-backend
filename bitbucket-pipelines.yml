@@ -9,12 +9,10 @@ pipelines:
     - step:
         caches:
           - composer
-          - node
         script:
           - apt-get update && apt-get install -y git curl libmcrypt-dev default-mysql-client
           - yes | pecl install mcrypt-1.0.1
           - docker-php-ext-install pdo_mysql
-          - bash ./install-composer.sh
           - composer install
           - curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh
           - bash nodesource_setup.sh
