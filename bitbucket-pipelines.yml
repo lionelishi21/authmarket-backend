@@ -1,63 +1,31 @@
-# This is a sample build configuration for PHP.
-# Check our guides at https://confluence.atlassian.com/x/e8YWN for more examples.
-# Only use spaces to indent your .yml configuration.
-# -----
-
-# Specify a docker image from Docker Hub as your build environment.
-# All of your pipeline scripts will be executed within this docker image.
-
-image: php:7.2-fpm
-
-# All of your Pipelines will be defined in the `pipelines` section.
-# You can have any number of Pipelines, but they must all have unique
-# names. The default Pipeline is simply named `default`.
+image: php:7.4-fpm
 
 pipelines:
   default:
-  # Each Pipeline consists of one or more steps which each execute
-  # sequentially in separate docker containers.
-  #
-  # name: optional name for this step
-  # script: the commands you wish to execute in this step, in order
     - step:
+        name: Build and test
+        caches:
+          - composer
         script:
-        # Your Pipeline automatically contains a copy of your code in its working
-        # directory; however, the docker image may not be preconfigured with all
-        # of the PHP/Laravel extensions your project requires. You may need to install
-        # them yourself, as shown below.
-          - apt-get update && apt-get install -qy git curl libmcrypt-dev mysql-client
-          - yes | pecl install mcrypt-1.0.1
-          - docker-php-ext-install pdo_mysql
+          - apt-get update && apt-get install -qy git curl libmcrypt-dev mariadb-client ghostscript
+          - yes | pecl install mcrypt-1.0.3
+          - docker-php-ext-install pdo_mysql bcmath exif
           - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
           - composer install
-          
-          # Here we create link between the .env.pipelines file and the .env file
-          # so that our database can retreieve all the variables inside .env.pipelines
           - ln -f -s .env.pipelines .env
-          
-          # Start up the php server so that we can test against it
           - php artisan migrate
-          - php artisan serve &
-          
-          # Give the server some time to start
-          - sleep 5
-          
-          # One common use case of Pipelines is running Unit Tests on your codebase.
-          # In PHP, this is commonly done with PHPUnit.
           - ./vendor/bin/phpunit
-          - curl -vk http://localhost:8000
         services:
           - mysql
-
-
-# You might want to create and access a service (like a database) as part
-# of your Pipeline workflow. You can do so by defining it as a service here.
+          - redis
 definitions:
   services:
     mysql:
       image: mysql:5.7
       environment:
-        MYSQL_DATABASE: 'homestead'
+        MYSQL_DATABASE: 'laravel-pipeline'
         MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
         MYSQL_USER: 'homestead'
         MYSQL_PASSWORD: 'secret'
+    redis:
+      image: redis
