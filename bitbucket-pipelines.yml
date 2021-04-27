@@ -6,7 +6,7 @@ pipelines:
       - composer
       script:
       - apk add --no-cache php7-gd php7-xmlwriter
-      - php -r "file_exists('.env') || copy('.env.testing', '.env');"
+      - php -r "file_exists('.env') || copy('.env.pipelines', '.env');"
       - composer install
       - php artisan key:generate
       - php artisan migrate --seed
