@@ -1,41 +1,16 @@
-image: php:7.2-fpm
+mage: php:7.3
 
 pipelines:
   default:
     - step:
-        name: Node Build
-        image: node:8.9.4
-        caches:
-          - node
-        script:
-          - npm install
-          - npm run dev
-    - step:
-        name: App Build
         caches:
           - composer
         script:
-          - mkdir /usr/share/man/man1/
-          - apt-get update && apt-get install -qy git zip curl libmcrypt-dev default-mysql-client libxml2-dev default-jre wget maven
-          - yes | pecl install mcrypt-1.0.1
-          - docker-php-ext-install pdo_mysql bcmath
+          - apt-get update && apt-get install -y unzip
           - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
           - composer install
-          - ln -f -s .env.pipelines .env
-          - php artisan migrate
-          - php artisan serve &
-          - sleep 5
-          - ./vendor/bin/phpunit
-          - curl -vk http://localhost:8000
-        services:
-          - mysql
+          - cp .env.example .env
+          - php artisan key:generate
+          - vendor/bin/phpunit
+          - echo "Done!"
 
-definitions:
-  services:
-    mysql:
-      image: mysql:5.7
-      environment:
-        MYSQL_DATABASE: 'homestead'
-        MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
-        MYSQL_USER: 'homestead'
-        MYSQL_PASSWORD: 'secret'
